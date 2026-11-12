@@ -3,127 +3,81 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ZONEPUSHER</title>
 
 <style>
 :root{
- --bg:#080808;
- --card:#171717;
- --main:#ff1744;
- --text:#ffffff;
+ --bg:#080808;--card:#171717;--main:#ff1744;
+ --text:#fff;
 }
 *{box-sizing:border-box}
 body{
- margin:0;
- background:var(--bg);
- color:var(--text);
- font-family:Arial,sans-serif;
- transition:.3s;
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Arial,sans-serif;transition:.3s;
 }
 header{
- background:#151515;
- padding:25px 10px;
- text-align:center;
- font-size:35px;
- font-weight:900;
- letter-spacing:2px;
- color:var(--main);
- text-shadow:0 0 15px var(--main);
- border-bottom:1px solid #333;
+ padding:25px 10px;text-align:center;background:#151515;
+ font-size:34px;font-weight:900;letter-spacing:2px;
+ color:var(--main);text-shadow:0 0 15px var(--main);
 }
 nav{
- display:flex;
- justify-content:center;
- flex-wrap:wrap;
- gap:12px;
- padding:20px 10px;
+ display:flex;justify-content:center;flex-wrap:wrap;
+ gap:10px;padding:20px 8px;
 }
 button{
  background:linear-gradient(110deg,#ff1744,#9c27ff,#00c8ff,#ff1744);
- background-size:300% 300%;
- color:white;
- border:1px solid #ffffff50;
- padding:14px 20px;
- border-radius:13px;
- font-size:15px;
- font-weight:bold;
- cursor:pointer;
- animation:rgbMove 5s linear infinite;
- box-shadow:0 0 12px #9c27ff55;
- transition:.25s;
- margin:4px;
+ background-size:300% 300%;animation:rgb 5s infinite;
+ color:white;border:1px solid #ffffff55;
+ padding:13px 18px;border-radius:12px;
+ font-weight:bold;cursor:pointer;margin:4px;
+ transition:.2s;
 }
-button:hover{
- transform:translateY(-4px) scale(1.03);
- box-shadow:0 0 15px #ff1744,0 0 25px #00c8ff;
-}
-@keyframes rgbMove{
- 0%{background-position:0% 50%}
- 50%{background-position:100% 50%}
- 100%{background-position:0% 50%}
+button:hover{transform:translateY(-3px);box-shadow:0 0 20px #a000ff}
+@keyframes rgb{
+ 0%{background-position:0%}
+ 100%{background-position:300%}
 }
 .card{
- background:var(--card);
- border:1px solid #444;
- border-radius:18px;
- padding:25px;
- margin:18px auto;
- width:94%;
- max-width:650px;
- box-shadow:0 0 20px #a000ff12;
+ background:var(--card);border:1px solid #444;
+ border-radius:18px;padding:22px;margin:15px auto;
+ width:94%;max-width:650px;
 }
-h2{color:var(--main)}
-h3{color:var(--main)}
+h2,h3{color:var(--main)}
 input,select,textarea{
- display:block;
- width:100%;
- padding:14px;
- margin:12px 0;
- background:#242424;
- border:1px solid #555;
- border-radius:9px;
- color:white;
- font-size:15px;
+ width:100%;padding:13px;margin:10px 0;
+ background:#242424;color:white;
+ border:1px solid #555;border-radius:9px;
 }
 .hidden{display:none!important}
 .product,.order{
- background:#242424;
- border:1px solid #444;
- border-radius:12px;
- padding:16px;
- margin:13px 0;
+ background:#242424;border:1px solid #444;
+ border-radius:12px;padding:15px;margin:12px 0;
 }
-.price,.total{
- color:#35e89b;
- font-weight:bold;
- font-size:20px;
-}
+.price,.total{color:#35e89b;font-weight:bold}
 .small{color:#aaa;font-size:13px}
-.stars{
- font-size:35px;
- color:gold;
- cursor:pointer;
+.preview{width:100%;max-height:220px;object-fit:contain}
+.stars{font-size:32px;color:gold}
+hr{border:0;border-top:1px solid #444;margin:22px 0}
+footer{text-align:center;color:#888;padding:25px}
+
+/* PREMIUM POPUP */
+#popup{
+ position:fixed;inset:0;background:#000b;
+ display:none;align-items:center;justify-content:center;
+ z-index:9999;padding:20px;
 }
-.stars span{padding:3px}
-.preview{
- width:100%;
- max-height:250px;
- object-fit:contain;
- margin-top:10px;
+.popup-box{
+ width:100%;max-width:380px;background:#19151f;
+ border:1px solid #a855ff;border-radius:18px;
+ padding:25px;text-align:center;
+ box-shadow:0 0 30px #9c27ff55;
 }
-.theme-box{
- display:flex;
- gap:10px;
- flex-wrap:wrap;
-}
-.theme-box button{flex:1}
-hr{border:0;border-top:1px solid #444;margin:25px 0}
-footer{
- text-align:center;
- color:#888;
- padding:25px;
-}
+.popup-box h2{margin-top:0}
+.popup-actions{display:flex;justify-content:center;flex-wrap:wrap}
+#popupMessage{color:#ddd;line-height:1.6;white-space:pre-wrap}
+.status{color:#35e89b;font-weight:bold}
+.danger{background:linear-gradient(110deg,#b91c1c,#ff1744)}
 </style>
 </head>
 
@@ -143,8 +97,7 @@ footer{
 <!-- HOME -->
 <section id="home" class="card">
 <h2>WELCOME TO ZONEPUSHER</h2>
-<p>Your Premium Gaming Store</p>
-<p id="welcome"></p>
+<p id="welcome">Your Premium Gaming Store</p>
 <div id="products"></div>
 </section>
 
@@ -154,7 +107,7 @@ footer{
 <input id="reguser" placeholder="Username">
 <input id="regpass" type="password" placeholder="Password">
 <input id="regconfirm" type="password" placeholder="Confirm Password">
-<button onclick="register()">REGISTER NOW</button>
+<button onclick="register()">REGISTER</button>
 </section>
 
 <!-- LOGIN -->
@@ -163,7 +116,6 @@ footer{
 <input id="loginuser" placeholder="Username">
 <input id="loginpass" type="password" placeholder="Password">
 <button onclick="login()">LOGIN</button>
-<button onclick="logout()">LOGOUT</button>
 </section>
 
 <!-- CART -->
@@ -171,40 +123,47 @@ footer{
 <h2>YOUR CART 🛒</h2>
 <div id="cartitems"></div>
 <p class="total" id="carttotal">Total: ₹0</p>
-<button onclick="showCheckout()">PROCEED TO CHECKOUT</button>
+<button onclick="checkout()">PROCEED TO CHECKOUT</button>
 </section>
 
 <!-- CHECKOUT -->
 <section id="checkout" class="card hidden">
 <h2>ORDER CHECKOUT</h2>
-<p>Give your shopping experience a rating:</p>
+<p>Rate your experience:</p>
 <div class="stars" id="rating"></div>
-<p id="ratingText">Select your stars</p>
-<hr>
+<p id="ratingText">Select rating</p>
+
+<div class="product">
+<h3>REFUND POLICY</h3>
+<p>Digital products are generally non-refundable after successful delivery.</p>
+<p>Exceptions may apply for failed or duplicate payments, undelivered orders, defective products, or where required by applicable law.</p>
+<label>
+<input type="checkbox" id="acceptPolicy" style="width:auto">
+I have read and accept the refund policy.
+</label>
+</div>
+
 <p class="total" id="checkoutTotal"></p>
-<button onclick="createPayment()">CONTINUE TO PAYMENT</button>
+<button onclick="createOrder()">CONTINUE</button>
 </section>
 
 <!-- PAYMENT -->
 <section id="payment" class="card hidden">
 <h2>PAYMENT CENTER</h2>
-<p>Your unique payment code:</p>
+<p>Your Payment Code:</p>
 <h2 id="paymentCode"></h2>
 <p class="total" id="paymentAmount"></p>
 
 <div class="product">
-<h3>PAYMENT DETAILS</h3>
-<p>UPI ID:</p>
-<h3 id="upiDisplay">YOUR-UPI-ID@BANK</h3>
-<button onclick="copyUPI()">COPY UPI ID</button>
-<p class="small">Use the configured UPI ID or QR to make your payment.</p>
+<h3>UPI PAYMENT</h3>
+<p id="upiDisplay">Not configured</p>
+<button onclick="copyUPI()">COPY UPI</button>
 </div>
 
-<h3>PAYMENT VERIFICATION</h3>
-<input id="utr" placeholder="Enter Payment UTR / Reference Number">
-<p>Upload Payment Screenshot:</p>
+<input id="utr" placeholder="Enter UTR / Transaction ID">
+<p>Upload payment screenshot:</p>
 <input id="screenshot" type="file" accept="image/*">
-<img id="imagePreview" class="preview hidden">
+<img id="preview" class="preview hidden">
 <button onclick="submitPayment()">SUBMIT PAYMENT</button>
 </section>
 
@@ -218,37 +177,30 @@ footer{
 <section id="admin" class="card hidden">
 <h2>ADMIN LOGIN</h2>
 <input id="adminpass" type="password" placeholder="Admin Password">
-<button onclick="adminLogin()">ADMIN LOGIN</button>
+<button onclick="adminLogin()">LOGIN AS ADMIN</button>
 </section>
 
-<!-- ADMIN DASHBOARD -->
+<!-- ADMIN PANEL -->
 <section id="dashboard" class="card hidden">
-
 <h2>ADMIN DASHBOARD ⚙️</h2>
 
-<hr>
-<h3>🎨 WEBSITE THEME</h3>
-<p>Select your theme:</p>
-
+<h3>🎨 WEBSITE CUSTOMIZATION</h3>
 <select id="themeSelect" onchange="changeTheme(this.value)">
-<option value="rgb">🌈 RGB Gaming</option>
-<option value="red">🔴 Red Premium</option>
-<option value="blue">🔵 Blue Neon</option>
-<option value="purple">🟣 Purple Neon</option>
-<option value="green">🟢 Green Gaming</option>
-<option value="gold">🟡 Gold Luxury</option>
+<option value="rgb">RGB GAMING</option>
+<option value="red">RED PREMIUM</option>
+<option value="blue">BLUE NEON</option>
+<option value="purple">PURPLE NEON</option>
+<option value="green">GREEN GAMING</option>
+<option value="gold">GOLD LUXURY</option>
 </select>
-
 <input id="siteName" placeholder="Website Name">
-<button onclick="saveSettings()">SAVE WEBSITE DESIGN</button>
+<button onclick="saveSettings()">SAVE DESIGN</button>
 
 <hr>
 <h3>➕ ADD PRODUCT</h3>
 <input id="pname" placeholder="Product Name">
-<input id="pprice" type="number" placeholder="Product Price">
+<input id="pprice" type="number" placeholder="Price">
 <button onclick="addProduct()">ADD PRODUCT</button>
-
-<h3>📦 MANAGE PRODUCTS</h3>
 <div id="adminProducts"></div>
 
 <hr>
@@ -257,25 +209,29 @@ footer{
 <button onclick="saveUPI()">SAVE UPI</button>
 
 <hr>
-<h3>📋 ALL CUSTOMER ORDERS</h3>
+<h3>📦 ALL CUSTOMER ORDERS</h3>
 <div id="orders"></div>
 
 <hr>
-<h3>👥 REGISTERED USERS</h3>
+<h3>👥 USER MANAGEMENT</h3>
 <div id="users"></div>
 
-<button onclick="adminLogout()">LOGOUT ADMIN</button>
-
+<button class="danger" onclick="adminLogout()">LOGOUT ADMIN</button>
 </section>
 
-<footer>
-ZONEPUSHER © 2026
-<p>POWERED BY ZONEPUSHER</p>
-</footer>
+<!-- PREMIUM POPUP -->
+<div id="popup">
+ <div class="popup-box">
+  <h2 id="popupTitle">ZONEPUSHER</h2>
+  <p id="popupMessage"></p>
+  <div class="popup-actions" id="popupActions"></div>
+ </div>
+</div>
+
+<footer>ZONEPUSHER © 2026<br>POWERED BY ZONEPUSHER</footer>
 
 <script>
-
-// DATABASE - DEMO ONLY
+const $=id=>document.getElementById(id);
 const get=(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
 const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
@@ -283,9 +239,7 @@ let users=get("zp_users",[]);
 let products=get("zp_products",[]);
 let orders=get("zp_orders",[]);
 let settings=get("zp_settings",{
- name:"ZONEPUSHER",
- theme:"rgb",
- upi:"YOUR-UPI-ID@BANK"
+ name:"ZONEPUSHER",theme:"rgb",upi:"YOUR-UPI-ID@BANK"
 });
 
 let cart=[];
@@ -293,31 +247,51 @@ let currentUser=null;
 let isAdmin=false;
 let selectedRating=0;
 let activeOrder=null;
+let pendingAction=null;
 
-// THEMES
-const themes={
- rgb:["#080808","#ff1744"],
- red:["#090909","#ff3030"],
- blue:["#07111f","#168cff"],
- purple:["#100817","#a855ff"],
- green:["#06130e","#00c985"],
- gold:["#15100a","#e5ae32"]
-};
+function popup(title,message,buttons){
+ $("popupTitle").textContent=title;
+ $("popupMessage").textContent=message;
+ $("popupActions").innerHTML="";
 
-// NAVIGATION
+ buttons.forEach(b=>{
+ let btn=document.createElement("button");
+ btn.textContent=b.label;
+ btn.className=b.danger?"danger":"";
+ btn.onclick=()=>{
+ $("popup").style.display="none";
+ b.action();
+ };
+ $("popupActions").appendChild(btn);
+ });
+
+ $("popup").style.display="flex";
+}
+
+function notice(message){
+ popup("ZONEPUSHER",message,[{
+ label:"OK",action:()=>{}
+ }]);
+}
+
+function confirmBox(message,action){
+ popup("CONFIRM ACTION",message,[
+ {label:"CANCEL",action:()=>{}},
+ {label:"CONFIRM",danger:true,action:action}
+ ]);
+}
+
 function show(id){
  document.querySelectorAll("body > section")
  .forEach(s=>s.classList.add("hidden"));
-
- document.getElementById(id).classList.remove("hidden");
+ $(id).classList.remove("hidden");
 
  if(id==="home")renderProducts();
  if(id==="cart")renderCart();
  if(id==="history")renderHistory();
- if(id==="dashboard" && isAdmin)renderAdmin();
+ if(id==="dashboard"&&isAdmin)renderAdmin();
 }
 
-// SAVE
 function saveAll(){
  put("zp_users",users);
  put("zp_products",products);
@@ -325,71 +299,62 @@ function saveAll(){
  put("zp_settings",settings);
 }
 
-// HTML SAFETY
-function escapeHTML(v){
- return String(v).replace(/[&<>"']/g,c=>({
- "&":"&amp;",
- "<":"&lt;",
- ">":"&gt;",
- '"':"&quot;",
- "'":"&#39;"
+function safe(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",
+ '"':"&quot;","'":"&#39;"
  })[c]);
 }
 
 // REGISTER
 function register(){
- let u=document.getElementById("reguser").value.trim();
- let p=document.getElementById("regpass").value;
- let c=document.getElementById("regconfirm").value;
+ let u=$("reguser").value.trim();
+ let p=$("regpass").value;
 
- if(!u||!p)return alert("Fill all fields");
- if(p!==c)return alert("Password does not match");
+ if(!u||!p)return notice("Please fill all fields.");
+ if(p!==$("regconfirm").value)return notice("Passwords do not match.");
 
  if(users.some(x=>x.username.toLowerCase()===u.toLowerCase()))
- return alert("Username already exists!");
+ return notice("Username already exists.");
 
- users.push({username:u,password:p});
+ users.push({username:u,password:p,banned:false});
  saveAll();
 
- alert("Registration successful!");
+ notice("Registration successful!");
  show("login");
 }
 
 // LOGIN
 function login(){
- let u=document.getElementById("loginuser").value.trim();
- let p=document.getElementById("loginpass").value;
+ let u=$("loginuser").value.trim();
+ let p=$("loginpass").value;
 
- let found=users.find(x=>
- x.username.toLowerCase()===u.toLowerCase() &&
- x.password===p
+ let user=users.find(x=>
+ x.username.toLowerCase()===u.toLowerCase()&&x.password===p
  );
 
- if(!found)return alert("Wrong username or password");
+ if(!user)return notice("Wrong username or password.");
+ if(user.banned)return notice("Your account has been banned. Contact admin.");
 
  currentUser=u;
- document.getElementById("welcome").textContent="Welcome "+u;
- alert("Login successful!");
+ $("welcome").textContent="Welcome "+u;
+ notice("Login successful!");
  show("home");
 }
 
-// LOGOUT
 function logout(){
  currentUser=null;
- document.getElementById("welcome").textContent="";
- alert("Logged out!");
+ $("welcome").textContent="Your Premium Gaming Store";
  show("home");
 }
 
-// ADMIN LOGIN
+// ADMIN
 function adminLogin(){
- if(document.getElementById("adminpass").value==="12341234"){
+ if($("adminpass").value==="12341234"){
  isAdmin=true;
  show("dashboard");
  renderAdmin();
- }else{
- alert("Wrong admin password!");
- }
+ }else notice("Incorrect admin password.");
 }
 
 function adminLogout(){
@@ -397,82 +362,63 @@ function adminLogout(){
  show("home");
 }
 
-// ADD PRODUCT
+// PRODUCTS
 function addProduct(){
  if(!isAdmin)return;
 
- let n=document.getElementById("pname").value.trim();
- let p=Number(document.getElementById("pprice").value);
+ let n=$("pname").value.trim();
+ let p=Number($("pprice").value);
 
- if(!n||p<=0)return alert("Enter valid product details");
+ if(!n||p<=0)return notice("Enter valid product details.");
 
- products.push({
- id:Date.now(),
- name:n,
- price:p
- });
-
+ products.push({id:Date.now(),name:n,price:p});
  saveAll();
- document.getElementById("pname").value="";
- document.getElementById("pprice").value="";
  renderAdmin();
- alert("Product added!");
+ notice("Product added successfully.");
 }
 
-// DELETE PRODUCT
 function deleteProduct(i){
  if(!isAdmin)return;
- if(!confirm("Delete product?"))return;
-
+ confirmBox("Delete this product permanently?",()=>{
  products.splice(i,1);
  saveAll();
  renderAdmin();
+ });
 }
 
-// SHOW PRODUCTS
 function renderProducts(){
- document.getElementById("products").innerHTML=
- products.map((p,i)=>`
+ $("products").innerHTML=products.map((p,i)=>`
  <div class="product">
- <h3>${escapeHTML(p.name)}</h3>
+ <h3>${safe(p.name)}</h3>
  <p class="price">₹${p.price}</p>
  <button onclick="addCart(${i})">ADD TO CART</button>
- </div>
- `).join("")||"No products available.";
+ </div>`).join("")||"No products available.";
 }
 
-// ADD TO CART
 function addCart(i){
- if(!products[i])return;
-
- let found=cart.find(x=>x.id===products[i].id);
-
+ let p=products[i];
+ if(!p)return;
+ let found=cart.find(x=>x.id===p.id);
  if(found)found.qty++;
- else cart.push({...products[i],qty:1});
-
- alert("Added to cart!");
+ else cart.push({...p,qty:1});
+ notice("Product added to cart.");
 }
 
-// CART TOTAL
 function total(){
  return cart.reduce((s,p)=>s+p.price*p.qty,0);
 }
 
-// RENDER CART
 function renderCart(){
- document.getElementById("cartitems").innerHTML=
- cart.map((p,i)=>`
+ $("cartitems").innerHTML=cart.map((p,i)=>`
  <div class="product">
- <h3>${escapeHTML(p.name)}</h3>
+ <b>${safe(p.name)}</b>
  <p>₹${p.price} × ${p.qty}</p>
  <button onclick="quantity(${i},1)">+</button>
  <button onclick="quantity(${i},-1)">-</button>
  <button onclick="removeCart(${i})">REMOVE</button>
- </div>
- `).join("")||"Your cart is empty.";
+ </div>`).join("")||"Your cart is empty.";
 
- document.getElementById("carttotal").textContent=
- "Total: ₹"+total();
+ $("carttotal").textContent="Total: ₹"+total();
 }
 
 function quantity(i,n){
@@ -487,253 +433,253 @@ function removeCart(i){
 }
 
 // CHECKOUT
-function showCheckout(){
- if(!currentUser)return alert("Login first!");
- if(!cart.length)return alert("Cart is empty!");
+function checkout(){
+ if(!currentUser)return notice("Please login first.");
+ if(!cart.length)return notice("Your cart is empty.");
 
  selectedRating=0;
  updateStars();
-
- document.getElementById("checkoutTotal").textContent=
- "Total Amount: ₹"+total();
-
+ $("checkoutTotal").textContent="Total: ₹"+total();
+ $("acceptPolicy").checked=false;
  show("checkout");
 }
 
-// STAR RATING
 function setRating(n){
  selectedRating=n;
  updateStars();
- document.getElementById("ratingText").textContent=
- n+" / 5 Stars";
+ $("ratingText").textContent=n+" / 5 Stars";
 }
 
 function updateStars(){
- document.getElementById("rating").innerHTML=
- [1,2,3,4,5].map(n=>
- `<span onclick="setRating(${n})">
- ${n<=selectedRating?"★":"☆"}
- </span>`
+ $("rating").innerHTML=[1,2,3,4,5].map(n=>
+ `<span onclick="setRating(${n})">${n<=selectedRating?"★":"☆"}</span>`
  ).join("");
 }
 
 // CREATE ORDER
-function createPayment(){
- if(!selectedRating)return alert("Select your rating!");
+function createOrder(){
+ if(!selectedRating)return notice("Please select a star rating.");
+ if(!$("acceptPolicy").checked)return notice("Please accept the refund policy.");
 
  let code="ZP"+Date.now().toString(36).toUpperCase();
 
- let order={
- id:code,
- user:currentUser,
+ orders.push({
+ id:code,user:currentUser,
  items:cart.map(x=>({...x})),
  amount:total(),
  rating:selectedRating,
  status:"Awaiting Payment",
- utr:"",
- screenshot:"",
+ utr:"",screenshot:"",
  date:new Date().toLocaleString()
- };
+ });
 
- orders.push(order);
  saveAll();
-
  activeOrder=code;
  cart=[];
 
- document.getElementById("paymentCode").textContent=code;
- document.getElementById("paymentAmount").textContent=
- "PAY ₹"+order.amount;
-
- document.getElementById("upiDisplay").textContent=settings.upi;
-
+ $("paymentCode").textContent=code;
+ $("paymentAmount").textContent="PAY ₹"+orders[orders.length-1].amount;
+ $("upiDisplay").textContent=settings.upi;
  show("payment");
 }
 
-// COPY UPI
+// PAYMENT
 function copyUPI(){
- if(navigator.clipboard){
+ if(!settings.upi||settings.upi==="YOUR-UPI-ID@BANK")
+ return notice("Admin has not configured UPI yet.");
+
  navigator.clipboard.writeText(settings.upi)
- .then(()=>alert("UPI copied!"))
- .catch(()=>alert("UPI ID: "+settings.upi));
- }else{
- alert("UPI ID: "+settings.upi);
- }
+ .then(()=>notice("UPI ID copied."))
+ .catch(()=>notice("UPI ID: "+settings.upi));
 }
 
-// SCREENSHOT PREVIEW
-document.getElementById("screenshot")
-.addEventListener("change",function(){
+$("screenshot").addEventListener("change",function(){
+ let f=this.files[0];
+ if(!f)return;
+ if(!f.type.startsWith("image/"))return notice("Select an image.");
+ if(f.size>1000000)return notice("Screenshot must be below 1 MB.");
 
- let file=this.files[0];
- if(!file)return;
-
- if(!file.type.startsWith("image/"))
- return alert("Select an image!");
-
- if(file.size>1000000)
- return alert("Image must be below 1 MB!");
-
- let reader=new FileReader();
-
- reader.onload=e=>{
- document.getElementById("imagePreview").src=e.target.result;
- document.getElementById("imagePreview").classList.remove("hidden");
+ let r=new FileReader();
+ r.onload=e=>{
+ $("preview").src=e.target.result;
+ $("preview").classList.remove("hidden");
  };
-
- reader.readAsDataURL(file);
+ r.readAsDataURL(f);
 });
 
-// SUBMIT PAYMENT
 function submitPayment(){
  let o=orders.find(x=>x.id===activeOrder);
- if(!o)return alert("Order not found!");
+ if(!o)return notice("Order not found.");
 
- let utr=document.getElementById("utr").value.trim();
- let file=document.getElementById("screenshot").files[0];
+ let utr=$("utr").value.trim();
+ let file=$("screenshot").files[0];
 
- if(!utr||!file)
- return alert("Enter UTR and upload screenshot!");
+ if(!utr||!file)return notice("Enter UTR and upload screenshot.");
 
- let reader=new FileReader();
-
- reader.onload=e=>{
+ let r=new FileReader();
+ r.onload=e=>{
  o.utr=utr;
  o.screenshot=e.target.result;
  o.status="Payment Verification Pending";
-
  saveAll();
 
- document.getElementById("utr").value="";
- document.getElementById("screenshot").value="";
- document.getElementById("imagePreview").classList.add("hidden");
+ $("utr").value="";
+ $("screenshot").value="";
+ $("preview").classList.add("hidden");
 
- alert("Payment submitted! Wait for admin verification.");
+ notice("Payment submitted. Admin will verify your order.");
  show("history");
  };
-
- reader.readAsDataURL(file);
+ r.readAsDataURL(file);
 }
 
-// ORDER HISTORY
+// HISTORY
 function renderHistory(){
  if(!currentUser){
- document.getElementById("myOrders").innerHTML="Please login first!";
+ $("myOrders").textContent="Please login first.";
  return;
  }
 
- let mine=orders.filter(o=>o.user===currentUser);
-
- document.getElementById("myOrders").innerHTML=
- mine.map(o=>`
+ $("myOrders").innerHTML=orders.filter(o=>o.user===currentUser)
+ .map(o=>`
  <div class="order">
- <h3>${escapeHTML(o.id)}</h3>
+ <h3>${safe(o.id)}</h3>
  <p>Amount: ₹${o.amount}</p>
  <p>Rating: ${o.rating} ★</p>
- <p>Status: ${escapeHTML(o.status)}</p>
- <p>${escapeHTML(o.date)}</p>
- </div>
- `).join("")||"No orders yet.";
+ <p>Status: ${safe(o.status)}</p>
+ <p>${safe(o.date)}</p>
+ </div>`).join("")||"No orders yet.";
 }
 
-// ADMIN ORDER ACTIONS
+// ADMIN ORDER CONTROL
 function changeOrder(i,status){
  if(!isAdmin)return;
-
+ confirmBox("Change order status to "+status+"?",()=>{
  orders[i].status=status;
  saveAll();
  renderAdmin();
+ });
+}
+
+function deleteOrder(i){
+ if(!isAdmin)return;
+ confirmBox("Permanently delete this order record?",()=>{
+ orders.splice(i,1);
+ saveAll();
+ renderAdmin();
+ });
+}
+
+// USER BAN / UNBAN / DELETE
+function toggleBan(i){
+ if(!isAdmin)return;
+
+ let u=users[i];
+ let action=u.banned?"Unban":"Ban";
+
+ confirmBox(action+" account: "+u.username+"?",()=>{
+ u.banned=!u.banned;
+ saveAll();
+ renderAdmin();
+ });
+}
+
+function deleteUser(i){
+ if(!isAdmin)return;
+
+ let name=users[i].username;
+
+ confirmBox("Delete account "+name+"? This will also delete its order history.",()=>{
+ orders=orders.filter(o=>o.user!==name);
+ users.splice(i,1);
+ saveAll();
+ renderAdmin();
+ });
 }
 
 // ADMIN DASHBOARD
 function renderAdmin(){
  if(!isAdmin)return;
 
- document.getElementById("siteName").value=settings.name;
- document.getElementById("themeSelect").value=settings.theme;
- document.getElementById("upiInput").value=settings.upi;
+ $("siteName").value=settings.name;
+ $("themeSelect").value=settings.theme;
+ $("upiInput").value=settings.upi;
 
- document.getElementById("orders").innerHTML=
- orders.map((o,i)=>`
+ $("orders").innerHTML=orders.map((o,i)=>`
  <div class="order">
- <h3>ORDER ${escapeHTML(o.id)}</h3>
- <p>Customer: ${escapeHTML(o.user)}</p>
+ <h3>${safe(o.id)}</h3>
+ <p>User: ${safe(o.user)}</p>
  <p>Amount: ₹${o.amount}</p>
- <p>Items: ${o.items.map(x=>escapeHTML(x.name)+" × "+x.qty).join(", ")}</p>
+ <p>Items: ${o.items.map(x=>safe(x.name)+" × "+x.qty).join(", ")}</p>
  <p>Rating: ${o.rating} ★</p>
- <p>UTR: ${escapeHTML(o.utr||"Not submitted")}</p>
- <p>Status: ${escapeHTML(o.status)}</p>
-
- ${o.screenshot?
- `<img class="preview" src="${o.screenshot}" alt="Payment screenshot">`
- :""}
-
+ <p>UTR: ${safe(o.utr||"Not submitted")}</p>
+ <p>Status: ${safe(o.status)}</p>
+ ${o.screenshot?`<img class="preview" src="${o.screenshot}" alt="Payment screenshot">`:""}
  <button onclick="changeOrder(${i},'Confirmed')">CONFIRM</button>
  <button onclick="changeOrder(${i},'Cancelled')">CANCEL</button>
- </div>
- `).join("")||"No orders yet.";
+ <button class="danger" onclick="deleteOrder(${i})">DELETE ORDER</button>
+ </div>`).join("")||"No orders.";
 
- document.getElementById("adminProducts").innerHTML=
- products.map((p,i)=>`
+ $("users").innerHTML=users.map((u,i)=>`
+ <div class="order">
+ <b>${safe(u.username)}</b>
+ <p>Status: ${u.banned?"🔴 BANNED":"🟢 ACTIVE"}</p>
+ <button onclick="toggleBan(${i})">${u.banned?"UNBAN":"BAN USER"}</button>
+ <button class="danger" onclick="deleteUser(${i})">DELETE ACCOUNT</button>
+ </div>`).join("")||"No users.";
+
+ $("adminProducts").innerHTML=products.map((p,i)=>`
  <div class="product">
- ${escapeHTML(p.name)} - ₹${p.price}
- <button onclick="deleteProduct(${i})">DELETE</button>
- </div>
- `).join("");
-
- document.getElementById("users").innerHTML=
- users.map(u=>`<p>${escapeHTML(u.username)}</p>`).join("");
+ ${safe(p.name)} - ₹${p.price}
+ <button class="danger" onclick="deleteProduct(${i})">DELETE</button>
+ </div>`).join("");
 }
 
-// THEME CHANGE
-function changeTheme(name){
- if(!isAdmin)return;
- if(!themes[name])return;
+// THEMES
+const themes={
+ rgb:["#080808","#ff1744"],
+ red:["#090909","#ff3030"],
+ blue:["#07111f","#168cff"],
+ purple:["#100817","#a855ff"],
+ green:["#06130e","#00c985"],
+ gold:["#15100a","#e5ae32"]
+};
 
- settings.theme=name;
+function changeTheme(t){
+ if(!isAdmin)return;
+ if(!themes[t])return;
+ settings.theme=t;
  applyTheme();
 }
 
-// APPLY THEME
 function applyTheme(){
  let t=themes[settings.theme]||themes.rgb;
-
  document.documentElement.style.setProperty("--bg",t[0]);
  document.documentElement.style.setProperty("--main",t[1]);
-
- document.getElementById("heading").textContent=settings.name;
+ $("heading").textContent=settings.name;
 }
 
-// SAVE SETTINGS
 function saveSettings(){
  if(!isAdmin)return;
-
- settings.name=document.getElementById("siteName").value.trim()||"ZONEPUSHER";
- settings.theme=document.getElementById("themeSelect").value;
-
+ settings.name=$("siteName").value.trim()||"ZONEPUSHER";
+ settings.theme=$("themeSelect").value;
  saveAll();
  applyTheme();
-
- alert("Website customization saved!");
+ notice("Website design saved.");
 }
 
-// SAVE UPI
 function saveUPI(){
  if(!isAdmin)return;
-
- let v=document.getElementById("upiInput").value.trim();
- if(!v)return alert("Enter UPI ID!");
-
+ let v=$("upiInput").value.trim();
+ if(!v)return notice("Enter a valid UPI ID.");
  settings.upi=v;
  saveAll();
-
- alert("UPI saved!");
+ notice("UPI settings saved.");
 }
 
-// INITIALIZE
+// START
 applyTheme();
 renderProducts();
-
 </script>
 </body>
 </html>
