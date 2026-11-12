@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZONEPUSHER - Gaming Community</title>
+<style>
+:root{--bg:#080810;--card:#171725;--main:#a855ff;--text:#fff;--muted:#aaa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{padding:22px 12px;text-align:center;background:linear-gradient(120deg,#170c25,#10101d);border-bottom:1px solid #ffffff20;position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:29px;letter-spacing:3px;color:var(--main);text-shadow:0 0 18px var(--main)}
+header small{color:#aaa}
+nav{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;padding:11px 5px;background:#11111b;position:sticky;top:74px;z-index:9}
+button{background:linear-gradient(120deg,#a855ff,#ef277b,#5425d5);color:white;border:0;border-radius:11px;padding:11px 14px;font-weight:bold;cursor:pointer;margin:3px}
+button:hover{filter:brightness(1.2)}button:disabled{opacity:.5;cursor:not-allowed}
+.card{background:var(--card);border:1px solid #ffffff1c;border-radius:17px;padding:18px;margin:15px auto;width:94%;max-width:720px}
+h2,h3{color:var(--main)}input,select,textarea{width:100%;padding:13px;margin:8px 0;background:#242434;color:white;border:1px solid #555;border-radius:9px}
+.hidden{display:none!important}.muted,.small{color:var(--muted)}.small{font-size:12px}.total{color:#35e89b;font-weight:bold}
+.product,.order,.post{background:#222232;border:1px solid #ffffff20;border-radius:14px;padding:14px;margin:11px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.hero{padding:28px 18px;border-radius:18px;background:radial-gradient(circle at 80% 20%,#8c28ce55,transparent 35%),linear-gradient(130deg,#251139,#10101c)}
+.hero h2{font-size:38px;color:white}.hero h2 span{color:#d47cff}
+.stat{background:#222232;padding:14px;border-radius:12px;text-align:center}.stat b{display:block;font-size:22px;color:#d47cff}
+.video{width:100%;max-height:470px;background:#000;border-radius:12px;object-fit:contain}
+.avatar{width:55px;height:55px;border-radius:50%;background:linear-gradient(120deg,#a855ff,#ff247d);display:grid;place-items:center;font-size:23px}
+.profile-head{display:flex;align-items:center;gap:14px}.coin{color:#ffca45;font-size:23px;font-weight:bold}
+.actions{display:flex;flex-wrap:wrap;gap:6px}.action-btn{background:#33334a}.danger{background:#c62845}
+#popup{display:none;position:fixed;inset:0;z-index:99;background:#000c;align-items:center;justify-content:center;padding:20px}
+.popup-box{background:#1c1728;border:1px solid #a855ff;padding:25px;border-radius:18px;width:100%;max-width:350px;text-align:center}
+.spin-wheel{width:220px;height:220px;border-radius:50%;margin:20px auto;background:conic-gradient(#ffcc45 0deg 36deg,#a855ff 36deg 72deg,#ff4081 72deg 108deg,#2196f3 108deg 144deg,#35d399 144deg 180deg,#ffcc45 180deg 216deg,#a855ff 216deg 252deg,#ff4081 252deg 288deg,#2196f3 288deg 324deg,#35d399 324deg 360deg);border:7px solid white;box-shadow:0 0 25px #a855ff88;transition:transform 3s cubic-bezier(.12,.7,.2,1);display:grid;place-items:center}
+.spin-wheel span{font-size:35px;background:#171725;border-radius:50%;padding:15px}
+#scratchCanvas{width:100%;height:130px;border-radius:12px;background:#a855ff;touch-action:none}
+footer{text-align:center;padding:25px;color:#888}
+@media(max-width:480px){nav button{padding:9px;font-size:11px}.hero h2{font-size:31px}}
+</style>
+</head>
+<body>
+<header><h1 id="brand">ZONEPUSHER</h1><small>GAMING • COMMUNITY • REWARDS</small></header>
+<nav>
+<button onclick="show('home')">HOME</button><button onclick="show('reels')">REELS</button><button onclick="show('rewards')">REWARDS</button>
+<button onclick="show('store')">STORE</button><button onclick="show('cart')">CART</button><button onclick="show('profile')">PROFILE</button>
+<button onclick="show('login')">LOGIN</button><button onclick="show('register')">REGISTER</button>
+</nav>
+
+<section id="home" class="card">
+<div class="hero"><p>WELCOME TO THE COMMUNITY</p><h2>PLAY MORE.<br><span>WIN REWARDS.</span></h2>
+<p class="muted">Your gaming world starts here.</p><button onclick="show('reels')">EXPLORE REELS →</button><button onclick="show('rewards')">DAILY REWARDS</button></div>
+<div class="grid"><div class="stat"><b id="homeCoins">0</b><small>YOUR COINS</small></div><div class="stat"><b id="homePosts">0</b><small>COMMUNITY POSTS</small></div></div>
+<h2>🔥 TRENDING VIDEOS</h2><div id="homeFeed"></div><h2>🎮 FEATURED STORE</h2><div id="homeProducts"></div>
+</section>
+
+<section id="register" class="card hidden"><h2>CREATE ACCOUNT</h2>
+<input id="regName" placeholder="Username"><input id="regPass" type="password" placeholder="Password"><input id="regConfirm" type="password" placeholder="Confirm Password">
+<button onclick="register()">REGISTER</button></section>
+
+<section id="login" class="card hidden"><h2>LOGIN</h2><input id="logName" placeholder="Username"><input id="logPass" type="password" placeholder="Password">
+<button onclick="login()">LOGIN</button><p class="small">Admin username: Admin</p></section>
+
+<section id="reels" class="card hidden"><h2>🎬 ZONEPUSHER REELS</h2>
+<div id="uploadArea" class="hidden"><h3>UPLOAD GAMING VIDEO</h3><input id="videoTitle" placeholder="Video caption">
+<input id="videoFile" type="file" accept="video/*"><button onclick="uploadVideo()">POST VIDEO</button><p class="small">Demo upload limit: 3 MB per video.</p></div><div id="feed"></div></section>
+
+<section id="rewards" class="card hidden"><h2>🎁 DAILY REWARDS</h2><div class="stat"><div class="coin" id="walletCoins">🪙 0 COINS</div><p class="small">Collect free coins every day.</p></div>
+<h3>🎡 DAILY SPIN</h3><div class="spin-wheel" id="wheel"><span>🎁</span></div><button id="spinButton" onclick="spin()">SPIN NOW</button><p id="spinMessage" class="muted"></p>
+<hr><h3>🎟️ DAILY SCRATCH CARD</h3><canvas id="scratchCanvas" width="600" height="260"></canvas><p id="scratchMessage">Scratch the card to reveal your reward!</p><button onclick="prepareScratch()">NEW DAILY SCRATCH</button>
+<hr><h3>🪙 COIN REDEMPTION</h3><p>1000 coins = 1 game order request.</p><p class="small">Coins are free in-site rewards, not cash.</p><button onclick="redeemCoins()">REDEEM 1000 COINS</button><div id="redemptionHistory"></div></section>
+
+<section id="store" class="card hidden"><h2>🎮 GAMING STORE</h2><div id="products"></div></section>
+<section id="cart" class="card hidden"><h2>🛒 YOUR CART</h2><div id="cartItems"></div><h3 id="cartTotal">Total ₹0</h3><button onclick="checkout()">CHECKOUT</button></section>
+<section id="checkout" class="card hidden"><h2>ORDER DETAILS</h2><select id="game"><option>Free Fire</option><option>Free Fire MAX</option><option>Other Game</option></select>
+<input id="gameUID" placeholder="Enter Game User ID"><div class="order"><b>REFUND POLICY</b><p class="small">Digital products are generally non-refundable after successful delivery. Exceptions apply for failed or duplicate payments, undelivered orders, defective products, or applicable legal rights.</p><label><input type="checkbox" id="policy" style="width:auto"> Accept policy</label></div><button onclick="placeOrder()">CONTINUE</button></section>
+<section id="payment" class="card hidden"><h2>PAYMENT</h2><h2 id="payCode"></h2><h3 id="payAmount"></h3><p id="upiText"></p><button onclick="copyUPI()">COPY UPI</button><input id="utr" placeholder="Enter UTR / Transaction ID"><input id="payImage" type="file" accept="image/*"><button onclick="sendPayment()">SUBMIT PAYMENT PROOF</button></section>
+
+<section id="profile" class="card hidden"><h2>👤 GAMING PROFILE</h2><div class="profile-head"><div class="avatar">🎮</div><div><h2 id="profileName">Guest</h2><p class="muted">ZONEPUSHER MEMBER</p></div></div>
+<div class="grid"><div class="stat"><b id="followers">0</b><small>FOLLOWERS</small></div><div class="stat"><b id="following">0</b><small>FOLLOWING</small></div><div class="stat"><b id="likes">0</b><small>LIKES</small></div><div class="stat"><b id="profileCoins">0</b><small>COINS</small></div></div>
+<h3>MY POSTS</h3><div id="myPosts"></div><h3>MY ORDERS</h3><div id="myHistory"></div><button onclick="logout()">LOGOUT</button></section>
+
+<section id="admin" class="card hidden"><h2>ADMIN CONTROL CENTER</h2>
+<h3>WEBSITE THEME</h3><select id="theme" onchange="setTheme(this.value)"><option value="purple">PURPLE</option><option value="red">RED</option><option value="blue">BLUE</option><option value="green">GREEN</option><option value="gold">GOLD</option></select>
+<input id="brandName" placeholder="Website name"><button onclick="saveTheme()">SAVE DESIGN</button>
+<hr><h3>ADD STORE PRODUCT</h3><input id="productName" placeholder="Product Name"><input id="productPrice" type="number" placeholder="Price"><button onclick="addProduct()">ADD PRODUCT</button><div id="adminProducts"></div>
+<hr><h3>PAYMENT UPI</h3><input id="upiInput" placeholder="UPI ID"><button onclick="saveUPI()">SAVE UPI</button>
+<hr><h3>ALL ORDERS</h3><div id="adminOrders"></div><hr><h3>USERS</h3><div id="adminUsers"></div><hr><h3>COMMUNITY POSTS</h3><div id="adminPosts"></div><hr><h3>COIN REDEMPTIONS</h3><div id="adminRedemptions"></div>
+<button class="danger" onclick="adminLogout()">ADMIN LOGOUT</button></section>
+
+<div id="popup"><div class="popup-box"><h2 id="popTitle">ZONEPUSHER</h2><p id="popText"></p><button onclick="closePop()">OK</button></div></div>
+<footer>ZONEPUSHER © 2026<br>POWERED BY ZONEPUSHER</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const get=(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
+const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const ADMIN_USER="Admin",ADMIN_PASS="9570074883";
+let users=get("zp_users",[]),posts=get("zp_posts",[]),products=get("zp_products",[]),orders=get("zp_orders",[]),redemptions=get("zp_redemptions",[]);
+let settings=get("zp_settings",{name:"ZONEPUSHER",theme:"purple",upi:"YOUR-UPI-ID@BANK"});
+let current=null,isAdmin=false,cart=[],activeOrder=null,spinAngle=0;
+function save(){put("zp_users",users);put("zp_posts",posts);put("zp_products",products);put("zp_orders",orders);put("zp_redemptions",redemptions);put("zp_settings",settings)}
+function notice(msg,title="ZONEPUSHER"){$("popTitle").textContent=title;$("popText").textContent=msg;$("popup").style.display="flex"}
+function closePop(){$("popup").style.display="none"}
+function safe(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function show(id){document.querySelectorAll("body > section").forEach(s=>s.classList.add("hidden"));$(id).classList.remove("hidden");if(id==="home")renderHome();if(id==="reels")renderFeed();if(id==="store")renderProducts();if(id==="cart")renderCart();if(id==="profile")renderProfile();if(id==="rewards")renderRewards();if(id==="admin"&&isAdmin)renderAdmin()}
+function me(){return users.find(u=>u.username===current)}
+function requireUser(){if(!current){notice("Please login first.");show("login");return false}return true}
+
+function register(){let u=$("regName").value.trim(),p=$("regPass").value;if(!u||!p)return notice("Fill all fields.");if(u.toLowerCase()==="admin")return notice("Username unavailable.");if(p!==$("regConfirm").value)return notice("Passwords do not match.");if(users.some(x=>x.username.toLowerCase()===u.toLowerCase()))return notice("Username already exists.");users.push({username:u,password:p,banned:false,coins:0,lastSpin:"",lastScratch:"",followers:[],following:[]});save();notice("Account created!");show("login")}
+function login(){let u=$("logName").value.trim(),p=$("logPass").value;if(u===ADMIN_USER&&p===ADMIN_PASS){isAdmin=true;current=null;show("admin");renderAdmin();return}let user=users.find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===p);if(!user)return notice("Wrong username or password.");if(user.banned)return notice("Account banned.");current=user.username;isAdmin=false;notice("Welcome "+current);show("home")}
+function logout(){current=null;isAdmin=false;show("home")}
+function adminLogout(){isAdmin=false;show("home")}
+
+function uploadVideo(){if(!requireUser())return;let file=$("videoFile").files[0];if(!file)return notice("Choose a video.");if(!file.type.startsWith("video/"))return notice("Select a video file.");if(file.size>3*1024*1024)return notice("Video must be under 3 MB in this demo.");let reader=new FileReader();reader.onload=e=>{posts.unshift({id:Date.now(),user:current,caption:$("videoTitle").value,video:e.target.result,likes:[],date:new Date().toLocaleDateString()});save();$("videoTitle").value="";$("videoFile").value="";renderFeed();notice("Video posted!")};reader.readAsDataURL(file)}
+function renderFeed(){$("uploadArea").classList.toggle("hidden",!current);$("feed").innerHTML=posts.map(p=>`<div class="post"><b>@${safe(p.user)}</b><p>${safe(p.caption)}</p><video class="video" src="${p.video}" controls playsinline preload="metadata"></video><div class="actions"><button class="action-btn" onclick="likePost(${p.id})">❤️ ${p.likes.length}</button><button class="action-btn" onclick="follow('${safe(p.user)}')">＋ Follow</button></div><small class="muted">${safe(p.date)}</small></div>`).join("")||"<p>No videos yet. Be the first to post!</p>"}
+function likePost(id){if(!requireUser())return;let p=posts.find(x=>x.id===id);if(!p)return;if(p.likes.includes(current))p.likes=p.likes.filter(x=>x!==current);else p.likes.push(current);save();renderFeed()}
+function follow(name){if(!requireUser())return;if(name===current)return notice("You cannot follow yourself.");let target=users.find(x=>x.username===name),u=me();if(!target)return;target.followers=target.followers||[];u.following=u.following||[];if(u.following.includes(name)){u.following=u.following.filter(x=>x!==name);target.followers=target.followers.filter(x=>x!==current)}else{u.following.push(name);target.followers.push(current)}save();renderFeed()}
+
+function today(){return new Date().toISOString().slice(0,10)}
+function rewardUser(n){me().coins+=n;save();$("walletCoins").textContent="🪙 "+me().coins+" COINS";$("homeCoins").textContent=me().coins;$("profileCoins").textContent=me().coins}
+function renderRewards(){if(!current){$("walletCoins").textContent="Login to see coins";return}$("walletCoins").textContent="🪙 "+me().coins+" COINS";$("spinMessage").textContent=me().lastSpin===today()?"Daily spin already used today.":"Your daily spin is ready!";$("scratchMessage").textContent=me().lastScratch===today()?"Daily scratch already used today.":"Scratch your free daily card!";drawScratch();renderRedemptions()}
+function spin(){if(!requireUser())return;let u=me();if(u.lastSpin===today())return notice("Come back tomorrow for your next free spin.");let prize=Math.floor(Math.random()*10)+1;u.lastSpin=today();save();spinAngle+=1440+prize*36;$("wheel").style.transform="rotate("+spinAngle+"deg)";$("spinButton").disabled=true;setTimeout(()=>{rewardUser(prize);$("spinMessage").textContent="You earned "+prize+" coins!";$("spinButton").disabled=false},3000)}
+
+let canvas=$("scratchCanvas"),drawing=false,scratchDone=false;
+function drawScratch(){let ctx=canvas.getContext("2d");ctx.globalCompositeOperation="source-over";ctx.fillStyle="#9d51d9";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle="white";ctx.font="bold 40px Arial";ctx.textAlign="center";ctx.fillText("SCRATCH HERE",300,145);scratchDone=false}
+function prepareScratch(){if(!requireUser())return;if(me().lastScratch===today())return notice("Your next free scratch is available tomorrow.");drawScratch();$("scratchMessage").textContent="Scratch the card to reveal your reward!"}
+function eraseAt(e){if(!drawing||scratchDone)return;let r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*canvas.width/r.width,y=(e.clientY-r.top)*canvas.height/r.height,ctx=canvas.getContext("2d");ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(x,y,35,0,Math.PI*2);ctx.fill();if(current&&me().lastScratch!==today()){scratchDone=true;me().lastScratch=today();save();rewardUser(5);$("scratchMessage").textContent="Congratulations! You earned 5 coins!"}}
+canvas.addEventListener("pointerdown",e=>{if(!requireUser())return;if(me().lastScratch===today())return notice("Already scratched today.");drawing=true;canvas.setPointerCapture(e.pointerId);eraseAt(e)});
+canvas.addEventListener("pointermove",eraseAt);canvas.addEventListener("pointerup",()=>drawing=false);canvas.addEventListener("pointercancel",()=>drawing=false);
+
+/* UPDATED REDEEM FUNCTION: asks for Game UID and deducts 1000 coins */
+function redeemCoins(){
+ if(!requireUser())return;
+ if(me().coins<1000)return notice("You need 1000 coins.");
+ let uid=prompt("Enter your Game UID:");
+ if(!uid||!uid.trim())return;
+ if(!confirm("Redeem 1000 coins for one game order request?"))return;
+ me().coins-=1000;
+ redemptions.push({id:"ZPC"+Date.now(),user:current,gameUID:uid.trim(),coins:1000,status:"Pending Admin Review",date:new Date().toLocaleString()});
+ save();renderRewards();notice("Game order request submitted!");
+}
+function renderRedemptions(){$("redemptionHistory").innerHTML=redemptions.filter(r=>r.user===current).map(r=>`<div class="order">${safe(r.id)} | UID: ${safe(r.gameUID)} | ${safe(r.status)}</div>`).join("")}
+function addProduct(){if(!isAdmin)return;let n=$("productName").value.trim(),p=Number($("productPrice").value);if(!n||p<=0)return notice("Enter product details.");products.push({id:Date.now(),name:n,price:p});save();renderAdmin();notice("Product added")}
+function renderProducts(){$("products").innerHTML=products.map((p,i)=>`<div class="product"><div style="font-size:35px">🎮</div><h3>${safe(p.name)}</h3><p class="total">₹${p.price}</p><button onclick="addCart(${i})">ADD TO CART</button></div>`).join("")||"No products available"}
+function addCart(i){let p=products[i];if(!p)return;let old=cart.find(x=>x.id===p.id);if(old)old.qty++;else cart.push({...p,qty:1});notice("Added to cart")}
+function cartTotal(){return cart.reduce((s,p)=>s+p.price*p.qty,0)}
+function renderCart(){$("cartItems").innerHTML=cart.map((p,i)=>`<div class="product">${safe(p.name)} × ${p.qty}<button onclick="qty(${i},1)">+</button><button onclick="qty(${i},-1)">-</button><button onclick="removeCart(${i})">REMOVE</button></div>`).join("")||"Cart is empty";$("cartTotal").textContent="Total ₹"+cartTotal()}
+function qty(i,n){cart[i].qty+=n;if(cart[i].qty<=0)cart.splice(i,1);renderCart()}
+function removeCart(i){cart.splice(i,1);renderCart()}
+function checkout(){if(!requireUser())return;if(!cart.length)return notice("Your cart is empty.");show("checkout")}
+function placeOrder(){let uid=$("gameUID").value.trim();if(!uid)return notice("Enter Game UID.");if(!$("policy").checked)return notice("Accept refund policy.");let o={id:"ZP"+Date.now(),user:current,game:$("game").value,uid,items:cart.map(x=>({...x})),amount:cartTotal(),status:"Awaiting Payment",utr:"",image:"",date:new Date().toLocaleString()};orders.push(o);activeOrder=o.id;cart=[];save();$("payCode").textContent=o.id;$("payAmount").textContent="PAY ₹"+o.amount;$("upiText").textContent=settings.upi;show("payment")}
+function copyUPI(){navigator.clipboard.writeText(settings.upi).then(()=>notice("UPI copied!")).catch(()=>notice(settings.upi))}
+function sendPayment(){let o=orders.find(x=>x.id===activeOrder),file=$("payImage").files[0],utr=$("utr").value.trim();if(!o||!file||!utr)return notice("Enter UTR and upload screenshot.");if(file.size>700000)return notice("Screenshot must be under 700 KB.");let r=new FileReader();r.onload=e=>{o.utr=utr;o.image=e.target.result;o.status="Payment Verification Pending";save();notice("Payment proof submitted.");show("profile")};r.readAsDataURL(file)}
+
+function renderProfile(){if(!current){$("profileName").textContent="Guest";return}let u=me();$("profileName").textContent=u.username;$("profileCoins").textContent=u.coins;$("followers").textContent=(u.followers||[]).length;$("following").textContent=(u.following||[]).length;$("likes").textContent=posts.filter(p=>p.user===current).reduce((s,p)=>s+p.likes.length,0);$("myPosts").innerHTML=posts.filter(p=>p.user===current).map(p=>`<div class="order">${safe(p.caption)} - ❤️ ${p.likes.length}</div>`).join("")||"No posts";$("myHistory").innerHTML=orders.filter(o=>o.user===current).map(o=>`<div class="order">${safe(o.id)} | ${safe(o.status)} | UID: ${safe(o.uid)}</div>`).join("")||"No orders"}
+function renderHome(){$("homeCoins").textContent=current?me().coins:0;$("homePosts").textContent=posts.length;$("homeFeed").innerHTML=posts.slice(0,2).map(p=>`<div class="post">@${safe(p.user)}<p>${safe(p.caption)}</p><small>❤️ ${p.likes.length} likes</small></div>`).join("")||"Community videos coming soon";$("homeProducts").innerHTML=products.slice(0,2).map(p=>`<div class="product"><b>${safe(p.name)}</b><p>₹${p.price}</p></div>`).join("")||"Coming soon"}
+
+function renderAdmin(){if(!isAdmin)return;$("brandName").value=settings.name;$("theme").value=settings.theme;$("upiInput").value=settings.upi;
+$("adminProducts").innerHTML=products.map((p,i)=>`<div class="order">${safe(p.name)} ₹${p.price}<button class="danger" onclick="deleteProduct(${i})">DELETE</button></div>`).join("");
+$("adminOrders").innerHTML=orders.map((o,i)=>`<div class="order"><b>${safe(o.id)}</b><p>User: ${safe(o.user)}</p><p>Game: ${safe(o.game)} | UID: ${safe(o.uid)}</p><p>Amount: ₹${o.amount} | ${safe(o.status)}</p><p>UTR: ${safe(o.utr)}</p>${o.image?`<img src="${o.image}" width="100%">`:""}<button onclick="orderStatus(${i},'Confirmed')">CONFIRM</button><button onclick="orderStatus(${i},'Cancelled')">CANCEL</button><button class="danger" onclick="deleteOrder(${i})">DELETE</button></div>`).join("")||"No orders";
+$("adminUsers").innerHTML=users.map((u,i)=>`<div class="order">${safe(u.username)} - ${u.banned?"BANNED":"ACTIVE"}<button onclick="banUser(${i})">${u.banned?"UNBAN":"BAN"}</button><button class="danger" onclick="deleteUser(${i})">DELETE</button></div>`).join("");
+$("adminPosts").innerHTML=posts.map((p,i)=>`<div class="order">@${safe(p.user)}: ${safe(p.caption)}<button class="danger" onclick="deletePost(${i})">REMOVE POST</button></div>`).join("");
+$("adminRedemptions").innerHTML=redemptions.map((r,i)=>`<div class="order">${safe(r.id)} - ${safe(r.user)} - UID: ${safe(r.gameUID)} - ${safe(r.status)}<button onclick="redemptionStatus(${i},'Approved')">APPROVE</button><button onclick="redemptionStatus(${i},'Rejected')">REJECT</button></div>`).join("")}
+function orderStatus(i,s){orders[i].status=s;save();renderAdmin()}
+function deleteOrder(i){if(confirm("Delete order?")){orders.splice(i,1);save();renderAdmin()}}
+function deleteProduct(i){if(confirm("Delete product?")){products.splice(i,1);save();renderAdmin()}}
+function banUser(i){users[i].banned=!users[i].banned;save();renderAdmin()}
+function deleteUser(i){if(!confirm("Delete account and its history?"))return;let name=users[i].username;users.splice(i,1);orders=orders.filter(o=>o.user!==name);posts=posts.filter(p=>p.user!==name);save();renderAdmin()}
+function deletePost(i){if(confirm("Remove post?")){posts.splice(i,1);save();renderAdmin()}}
+function redemptionStatus(i,s){redemptions[i].status=s;save();renderAdmin()}
+const themes={purple:["#080810","#a855ff"],red:["#100707","#ff304f"],blue:["#06111e","#2196ff"],green:["#06140e","#00c985"],gold:["#15100a","#e5ae32"]};
+function setTheme(t){if(!isAdmin)return;settings.theme=t;applyTheme()}
+function applyTheme(){let t=themes[settings.theme]||themes.purple;document.documentElement.style.setProperty("--bg",t[0]);document.documentElement.style.setProperty("--main",t[1]);$("brand").textContent=settings.name}
+function saveTheme(){settings.name=$("brandName").value.trim()||"ZONEPUSHER";settings.theme=$("theme").value;save();applyTheme();notice("Design saved")}
+function saveUPI(){settings.upi=$("upiInput").value.trim();save();notice("UPI saved")}
+applyTheme();renderHome();
+</script>
+</body>
+</html>
