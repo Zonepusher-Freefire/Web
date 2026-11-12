@@ -3,12 +3,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ZONEPUSHER</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZONEPUSHER PREMIUM</title>
 
 <style>
 :root{
- --bg:#080808;--card:#171717;--main:#ff1744;
+ --bg:#08080d;
+ --card:#15151f;
+ --main:#ff1744;
  --text:#fff;
 }
 *{box-sizing:border-box}
@@ -17,73 +19,93 @@ body{
  font-family:Arial,sans-serif;transition:.3s;
 }
 header{
- padding:25px 10px;text-align:center;background:#151515;
- font-size:34px;font-weight:900;letter-spacing:2px;
- color:var(--main);text-shadow:0 0 15px var(--main);
+ text-align:center;padding:28px 10px;
+ background:linear-gradient(120deg,#15151f,#241329,#101522);
+ border-bottom:1px solid #ffffff20;
 }
+header h1{
+ margin:0;font-size:34px;letter-spacing:3px;
+ color:var(--main);text-shadow:0 0 20px var(--main);
+}
+header p{color:#aaa;margin-bottom:0}
 nav{
  display:flex;justify-content:center;flex-wrap:wrap;
- gap:10px;padding:20px 8px;
+ gap:10px;padding:18px 8px;
 }
 button{
  background:linear-gradient(110deg,#ff1744,#9c27ff,#00c8ff,#ff1744);
- background-size:300% 300%;animation:rgb 5s infinite;
- color:white;border:1px solid #ffffff55;
+ background-size:300% 300%;
+ animation:rgb 5s linear infinite;
+ color:white;border:1px solid #ffffff40;
  padding:13px 18px;border-radius:12px;
  font-weight:bold;cursor:pointer;margin:4px;
- transition:.2s;
+ transition:.25s;
 }
-button:hover{transform:translateY(-3px);box-shadow:0 0 20px #a000ff}
+button:hover{
+ transform:translateY(-3px);
+ box-shadow:0 0 20px #a855ff;
+}
 @keyframes rgb{
- 0%{background-position:0%}
- 100%{background-position:300%}
+ 0%{background-position:0% 50%}
+ 100%{background-position:300% 50%}
 }
 .card{
- background:var(--card);border:1px solid #444;
- border-radius:18px;padding:22px;margin:15px auto;
+ background:var(--card);
+ border:1px solid #ffffff20;
+ border-radius:18px;
+ padding:22px;
  width:94%;max-width:650px;
+ margin:18px auto;
+ box-shadow:0 8px 35px #0005;
 }
 h2,h3{color:var(--main)}
 input,select,textarea{
- width:100%;padding:13px;margin:10px 0;
- background:#242424;color:white;
- border:1px solid #555;border-radius:9px;
+ display:block;width:100%;
+ padding:14px;margin:11px 0;
+ background:#222230;color:white;
+ border:1px solid #454555;
+ border-radius:10px;
+}
+input:focus,select:focus{
+ outline:none;border-color:var(--main);
+ box-shadow:0 0 10px var(--main);
 }
 .hidden{display:none!important}
 .product,.order{
- background:#242424;border:1px solid #444;
- border-radius:12px;padding:15px;margin:12px 0;
+ background:#222230;border:1px solid #444;
+ padding:16px;border-radius:13px;margin:13px 0;
 }
 .price,.total{color:#35e89b;font-weight:bold}
-.small{color:#aaa;font-size:13px}
+.small{font-size:13px;color:#aaa}
+.stars{font-size:34px;color:gold}
 .preview{width:100%;max-height:220px;object-fit:contain}
-.stars{font-size:32px;color:gold}
 hr{border:0;border-top:1px solid #444;margin:22px 0}
+.danger{background:linear-gradient(120deg,#b91c1c,#ff1744)}
 footer{text-align:center;color:#888;padding:25px}
 
 /* PREMIUM POPUP */
 #popup{
- position:fixed;inset:0;background:#000b;
+ position:fixed;inset:0;background:#000c;
  display:none;align-items:center;justify-content:center;
  z-index:9999;padding:20px;
 }
 .popup-box{
- width:100%;max-width:380px;background:#19151f;
- border:1px solid #a855ff;border-radius:18px;
- padding:25px;text-align:center;
- box-shadow:0 0 30px #9c27ff55;
+ width:100%;max-width:380px;
+ background:#191521;border:1px solid #a855ff;
+ border-radius:20px;padding:25px;text-align:center;
+ box-shadow:0 0 35px #a855ff55;
 }
-.popup-box h2{margin-top:0}
-.popup-actions{display:flex;justify-content:center;flex-wrap:wrap}
+.popup-box h2{color:#d38bff}
 #popupMessage{color:#ddd;line-height:1.6;white-space:pre-wrap}
-.status{color:#35e89b;font-weight:bold}
-.danger{background:linear-gradient(110deg,#b91c1c,#ff1744)}
 </style>
 </head>
 
 <body>
 
-<header id="heading">ZONEPUSHER</header>
+<header>
+<h1 id="heading">ZONEPUSHER</h1>
+<p>PREMIUM GAMING STORE</p>
+</header>
 
 <nav>
 <button onclick="show('home')">HOME</button>
@@ -91,13 +113,12 @@ footer{text-align:center;color:#888;padding:25px}
 <button onclick="show('register')">REGISTER</button>
 <button onclick="show('cart')">🛒 CART</button>
 <button onclick="show('history')">MY ORDERS</button>
-<button onclick="show('admin')">ADMIN</button>
 </nav>
 
 <!-- HOME -->
 <section id="home" class="card">
 <h2>WELCOME TO ZONEPUSHER</h2>
-<p id="welcome">Your Premium Gaming Store</p>
+<p id="welcome">Your Ultimate Gaming Store</p>
 <div id="products"></div>
 </section>
 
@@ -107,62 +128,77 @@ footer{text-align:center;color:#888;padding:25px}
 <input id="reguser" placeholder="Username">
 <input id="regpass" type="password" placeholder="Password">
 <input id="regconfirm" type="password" placeholder="Confirm Password">
-<button onclick="register()">REGISTER</button>
+<button onclick="register()">CREATE ACCOUNT</button>
 </section>
 
 <!-- LOGIN -->
 <section id="login" class="card hidden">
-<h2>USER LOGIN</h2>
+<h2>ACCOUNT LOGIN</h2>
 <input id="loginuser" placeholder="Username">
 <input id="loginpass" type="password" placeholder="Password">
-<button onclick="login()">LOGIN</button>
+<button onclick="login()">LOGIN NOW</button>
+<p class="small">New customer? Create an account using Register.</p>
 </section>
 
 <!-- CART -->
 <section id="cart" class="card hidden">
 <h2>YOUR CART 🛒</h2>
 <div id="cartitems"></div>
-<p class="total" id="carttotal">Total: ₹0</p>
+<p class="total" id="carttotal">Total ₹0</p>
 <button onclick="checkout()">PROCEED TO CHECKOUT</button>
 </section>
 
 <!-- CHECKOUT -->
 <section id="checkout" class="card hidden">
-<h2>ORDER CHECKOUT</h2>
-<p>Rate your experience:</p>
-<div class="stars" id="rating"></div>
-<p id="ratingText">Select rating</p>
+<h2>GAME ORDER DETAILS</h2>
 
-<div class="product">
+<label>Choose Your Game</label>
+<select id="gameName">
+<option value="Free Fire">Free Fire</option>
+<option value="Free Fire MAX">Free Fire MAX</option>
+<option value="Other">Other Game</option>
+</select>
+
+<label>Game User ID / UID</label>
+<input id="gameUID" placeholder="Enter your Game UID">
+
+<p class="small">Please double-check your Game UID before placing your order.</p>
+
+<hr>
+<h3>RATE YOUR EXPERIENCE</h3>
+<div class="stars" id="rating"></div>
+<p id="ratingText">Select your rating</p>
+
+<div class="order">
 <h3>REFUND POLICY</h3>
 <p>Digital products are generally non-refundable after successful delivery.</p>
 <p>Exceptions may apply for failed or duplicate payments, undelivered orders, defective products, or where required by applicable law.</p>
 <label>
-<input type="checkbox" id="acceptPolicy" style="width:auto">
-I have read and accept the refund policy.
+<input type="checkbox" id="acceptPolicy" style="width:auto;display:inline">
+I accept the refund policy.
 </label>
 </div>
 
 <p class="total" id="checkoutTotal"></p>
-<button onclick="createOrder()">CONTINUE</button>
+<button onclick="createOrder()">CONTINUE TO PAYMENT</button>
 </section>
 
 <!-- PAYMENT -->
 <section id="payment" class="card hidden">
-<h2>PAYMENT CENTER</h2>
-<p>Your Payment Code:</p>
+<h2>SECURE PAYMENT CENTER</h2>
+<p>Your unique order code:</p>
 <h2 id="paymentCode"></h2>
 <p class="total" id="paymentAmount"></p>
 
-<div class="product">
+<div class="order">
 <h3>UPI PAYMENT</h3>
 <p id="upiDisplay">Not configured</p>
-<button onclick="copyUPI()">COPY UPI</button>
+<button onclick="copyUPI()">COPY UPI ID</button>
 </div>
 
-<input id="utr" placeholder="Enter UTR / Transaction ID">
+<input id="utr" placeholder="Enter UPI Transaction ID / UTR">
 <p>Upload payment screenshot:</p>
-<input id="screenshot" type="file" accept="image/*">
+<input type="file" id="screenshot" accept="image/*">
 <img id="preview" class="preview hidden">
 <button onclick="submitPayment()">SUBMIT PAYMENT</button>
 </section>
@@ -173,16 +209,10 @@ I have read and accept the refund policy.
 <div id="myOrders"></div>
 </section>
 
-<!-- ADMIN LOGIN -->
-<section id="admin" class="card hidden">
-<h2>ADMIN LOGIN</h2>
-<input id="adminpass" type="password" placeholder="Admin Password">
-<button onclick="adminLogin()">LOGIN AS ADMIN</button>
-</section>
-
-<!-- ADMIN PANEL -->
+<!-- ADMIN DASHBOARD -->
 <section id="dashboard" class="card hidden">
-<h2>ADMIN DASHBOARD ⚙️</h2>
+
+<h2>ADMIN CONTROL CENTER ⚙️</h2>
 
 <h3>🎨 WEBSITE CUSTOMIZATION</h3>
 <select id="themeSelect" onchange="changeTheme(this.value)">
@@ -201,15 +231,17 @@ I have read and accept the refund policy.
 <input id="pname" placeholder="Product Name">
 <input id="pprice" type="number" placeholder="Price">
 <button onclick="addProduct()">ADD PRODUCT</button>
+
+<h3>PRODUCT MANAGEMENT</h3>
 <div id="adminProducts"></div>
 
 <hr>
 <h3>💳 PAYMENT SETTINGS</h3>
-<input id="upiInput" placeholder="Your UPI ID">
+<input id="upiInput" placeholder="UPI ID">
 <button onclick="saveUPI()">SAVE UPI</button>
 
 <hr>
-<h3>📦 ALL CUSTOMER ORDERS</h3>
+<h3>📦 ALL ORDERS</h3>
 <div id="orders"></div>
 
 <hr>
@@ -219,18 +251,22 @@ I have read and accept the refund policy.
 <button class="danger" onclick="adminLogout()">LOGOUT ADMIN</button>
 </section>
 
-<!-- PREMIUM POPUP -->
 <div id="popup">
  <div class="popup-box">
   <h2 id="popupTitle">ZONEPUSHER</h2>
   <p id="popupMessage"></p>
-  <div class="popup-actions" id="popupActions"></div>
+  <button onclick="closePopup()">OK</button>
  </div>
 </div>
 
-<footer>ZONEPUSHER © 2026<br>POWERED BY ZONEPUSHER</footer>
+<footer>
+ZONEPUSHER © 2026
+<p>POWERED BY ZONEPUSHER</p>
+</footer>
 
 <script>
+
+// DEMO STORAGE
 const $=id=>document.getElementById(id);
 const get=(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
 const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
@@ -242,45 +278,27 @@ let settings=get("zp_settings",{
  name:"ZONEPUSHER",theme:"rgb",upi:"YOUR-UPI-ID@BANK"
 });
 
-let cart=[];
 let currentUser=null;
 let isAdmin=false;
+let cart=[];
 let selectedRating=0;
 let activeOrder=null;
-let pendingAction=null;
 
-function popup(title,message,buttons){
+// ADMIN DEMO CREDENTIALS
+const ADMIN_USERNAME="Admin";
+const ADMIN_PASSWORD="9570074883";
+
+// PREMIUM POPUP
+function notice(message,title="ZONEPUSHER"){
  $("popupTitle").textContent=title;
  $("popupMessage").textContent=message;
- $("popupActions").innerHTML="";
-
- buttons.forEach(b=>{
- let btn=document.createElement("button");
- btn.textContent=b.label;
- btn.className=b.danger?"danger":"";
- btn.onclick=()=>{
- $("popup").style.display="none";
- b.action();
- };
- $("popupActions").appendChild(btn);
- });
-
  $("popup").style.display="flex";
 }
-
-function notice(message){
- popup("ZONEPUSHER",message,[{
- label:"OK",action:()=>{}
- }]);
+function closePopup(){
+ $("popup").style.display="none";
 }
 
-function confirmBox(message,action){
- popup("CONFIRM ACTION",message,[
- {label:"CANCEL",action:()=>{}},
- {label:"CONFIRM",danger:true,action:action}
- ]);
-}
-
+// NAVIGATION
 function show(id){
  document.querySelectorAll("body > section")
  .forEach(s=>s.classList.add("hidden"));
@@ -292,18 +310,18 @@ function show(id){
  if(id==="dashboard"&&isAdmin)renderAdmin();
 }
 
+function safe(v){
+ return String(v).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",
+ '"':"&quot;","'":"&#39;"
+ })[c]);
+}
+
 function saveAll(){
  put("zp_users",users);
  put("zp_products",products);
  put("zp_orders",orders);
  put("zp_settings",settings);
-}
-
-function safe(s){
- return String(s).replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",
- '"':"&quot;","'":"&#39;"
- })[c]);
 }
 
 // REGISTER
@@ -312,54 +330,57 @@ function register(){
  let p=$("regpass").value;
 
  if(!u||!p)return notice("Please fill all fields.");
+ if(u.toLowerCase()==="admin")return notice("This username is reserved.");
  if(p!==$("regconfirm").value)return notice("Passwords do not match.");
-
  if(users.some(x=>x.username.toLowerCase()===u.toLowerCase()))
  return notice("Username already exists.");
 
  users.push({username:u,password:p,banned:false});
  saveAll();
 
- notice("Registration successful!");
+ notice("Account created successfully!");
  show("login");
 }
 
-// LOGIN
+// LOGIN - USER AND ADMIN
 function login(){
  let u=$("loginuser").value.trim();
  let p=$("loginpass").value;
+
+ if(u===ADMIN_USERNAME && p===ADMIN_PASSWORD){
+ currentUser=null;
+ isAdmin=true;
+ $("loginpass").value="";
+ show("dashboard");
+ renderAdmin();
+ return;
+ }
 
  let user=users.find(x=>
  x.username.toLowerCase()===u.toLowerCase()&&x.password===p
  );
 
  if(!user)return notice("Wrong username or password.");
- if(user.banned)return notice("Your account has been banned. Contact admin.");
+ if(user.banned)return notice("Your account is banned. Contact admin.");
 
  currentUser=u;
- $("welcome").textContent="Welcome "+u;
+ isAdmin=false;
+ $("welcome").textContent="Welcome, "+u;
  notice("Login successful!");
  show("home");
 }
 
-function logout(){
- currentUser=null;
- $("welcome").textContent="Your Premium Gaming Store";
- show("home");
-}
-
-// ADMIN
-function adminLogin(){
- if($("adminpass").value==="12341234"){
- isAdmin=true;
- show("dashboard");
- renderAdmin();
- }else notice("Incorrect admin password.");
-}
-
+// LOGOUT
 function adminLogout(){
  isAdmin=false;
  show("home");
+ notice("Admin logged out.");
+}
+
+function userLogout(){
+ currentUser=null;
+ show("home");
+ notice("Logged out.");
 }
 
 // PRODUCTS
@@ -374,16 +395,9 @@ function addProduct(){
  products.push({id:Date.now(),name:n,price:p});
  saveAll();
  renderAdmin();
- notice("Product added successfully.");
-}
-
-function deleteProduct(i){
- if(!isAdmin)return;
- confirmBox("Delete this product permanently?",()=>{
- products.splice(i,1);
- saveAll();
- renderAdmin();
- });
+ $("pname").value="";
+ $("pprice").value="";
+ notice("Product added.");
 }
 
 function renderProducts(){
@@ -398,9 +412,11 @@ function renderProducts(){
 function addCart(i){
  let p=products[i];
  if(!p)return;
+
  let found=cart.find(x=>x.id===p.id);
  if(found)found.qty++;
  else cart.push({...p,qty:1});
+
  notice("Product added to cart.");
 }
 
@@ -418,7 +434,7 @@ function renderCart(){
  <button onclick="removeCart(${i})">REMOVE</button>
  </div>`).join("")||"Your cart is empty.";
 
- $("carttotal").textContent="Total: ₹"+total();
+ $("carttotal").textContent="Total ₹"+total();
 }
 
 function quantity(i,n){
@@ -439,11 +455,12 @@ function checkout(){
 
  selectedRating=0;
  updateStars();
- $("checkoutTotal").textContent="Total: ₹"+total();
  $("acceptPolicy").checked=false;
+ $("checkoutTotal").textContent="Total ₹"+total();
  show("checkout");
 }
 
+// STAR RATING
 function setRating(n){
  selectedRating=n;
  updateStars();
@@ -458,53 +475,62 @@ function updateStars(){
 
 // CREATE ORDER
 function createOrder(){
- if(!selectedRating)return notice("Please select a star rating.");
+ let uid=$("gameUID").value.trim();
+ if(!uid)return notice("Please enter your Game UID.");
+ if(!selectedRating)return notice("Please give a star rating.");
  if(!$("acceptPolicy").checked)return notice("Please accept the refund policy.");
 
  let code="ZP"+Date.now().toString(36).toUpperCase();
 
- orders.push({
- id:code,user:currentUser,
+ let order={
+ id:code,
+ user:currentUser,
+ game:$("gameName").value,
+ gameUID:uid,
  items:cart.map(x=>({...x})),
  amount:total(),
  rating:selectedRating,
  status:"Awaiting Payment",
- utr:"",screenshot:"",
+ utr:"",
+ screenshot:"",
  date:new Date().toLocaleString()
- });
+ };
 
+ orders.push(order);
  saveAll();
  activeOrder=code;
  cart=[];
 
  $("paymentCode").textContent=code;
- $("paymentAmount").textContent="PAY ₹"+orders[orders.length-1].amount;
+ $("paymentAmount").textContent="PAY ₹"+order.amount;
  $("upiDisplay").textContent=settings.upi;
+
  show("payment");
 }
 
 // PAYMENT
 function copyUPI(){
  if(!settings.upi||settings.upi==="YOUR-UPI-ID@BANK")
- return notice("Admin has not configured UPI yet.");
+ return notice("Payment UPI is not configured.");
 
  navigator.clipboard.writeText(settings.upi)
- .then(()=>notice("UPI ID copied."))
+ .then(()=>notice("UPI ID copied!"))
  .catch(()=>notice("UPI ID: "+settings.upi));
 }
 
 $("screenshot").addEventListener("change",function(){
- let f=this.files[0];
- if(!f)return;
- if(!f.type.startsWith("image/"))return notice("Select an image.");
- if(f.size>1000000)return notice("Screenshot must be below 1 MB.");
+ let file=this.files[0];
+ if(!file)return;
 
- let r=new FileReader();
- r.onload=e=>{
+ if(!file.type.startsWith("image/"))return notice("Select an image.");
+ if(file.size>1000000)return notice("Screenshot must be below 1 MB.");
+
+ let reader=new FileReader();
+ reader.onload=e=>{
  $("preview").src=e.target.result;
  $("preview").classList.remove("hidden");
  };
- r.readAsDataURL(f);
+ reader.readAsDataURL(file);
 });
 
 function submitPayment(){
@@ -516,8 +542,8 @@ function submitPayment(){
 
  if(!utr||!file)return notice("Enter UTR and upload screenshot.");
 
- let r=new FileReader();
- r.onload=e=>{
+ let reader=new FileReader();
+ reader.onload=e=>{
  o.utr=utr;
  o.screenshot=e.target.result;
  o.status="Payment Verification Pending";
@@ -527,13 +553,13 @@ function submitPayment(){
  $("screenshot").value="";
  $("preview").classList.add("hidden");
 
- notice("Payment submitted. Admin will verify your order.");
+ notice("Payment submitted successfully!");
  show("history");
  };
- r.readAsDataURL(file);
+ reader.readAsDataURL(file);
 }
 
-// HISTORY
+// CUSTOMER HISTORY
 function renderHistory(){
  if(!currentUser){
  $("myOrders").textContent="Please login first.";
@@ -544,6 +570,8 @@ function renderHistory(){
  .map(o=>`
  <div class="order">
  <h3>${safe(o.id)}</h3>
+ <p>Game: ${safe(o.game)}</p>
+ <p>Game UID: ${safe(o.gameUID)}</p>
  <p>Amount: ₹${o.amount}</p>
  <p>Rating: ${o.rating} ★</p>
  <p>Status: ${safe(o.status)}</p>
@@ -551,50 +579,40 @@ function renderHistory(){
  </div>`).join("")||"No orders yet.";
 }
 
-// ADMIN ORDER CONTROL
+// ADMIN ORDER MANAGEMENT
 function changeOrder(i,status){
  if(!isAdmin)return;
- confirmBox("Change order status to "+status+"?",()=>{
  orders[i].status=status;
  saveAll();
  renderAdmin();
- });
 }
 
 function deleteOrder(i){
  if(!isAdmin)return;
- confirmBox("Permanently delete this order record?",()=>{
+ if(!confirm("Delete this order permanently?"))return;
  orders.splice(i,1);
  saveAll();
  renderAdmin();
- });
 }
 
-// USER BAN / UNBAN / DELETE
+// BAN AND UNBAN
 function toggleBan(i){
  if(!isAdmin)return;
-
- let u=users[i];
- let action=u.banned?"Unban":"Ban";
-
- confirmBox(action+" account: "+u.username+"?",()=>{
- u.banned=!u.banned;
+ users[i].banned=!users[i].banned;
  saveAll();
  renderAdmin();
- });
 }
 
 function deleteUser(i){
  if(!isAdmin)return;
-
  let name=users[i].username;
 
- confirmBox("Delete account "+name+"? This will also delete its order history.",()=>{
+ if(!confirm("Delete "+name+" and their order history?"))return;
+
  orders=orders.filter(o=>o.user!==name);
  users.splice(i,1);
  saveAll();
  renderAdmin();
- });
 }
 
 // ADMIN DASHBOARD
@@ -608,9 +626,11 @@ function renderAdmin(){
  $("orders").innerHTML=orders.map((o,i)=>`
  <div class="order">
  <h3>${safe(o.id)}</h3>
- <p>User: ${safe(o.user)}</p>
+ <p>Customer: ${safe(o.user)}</p>
+ <p>Game: ${safe(o.game)}</p>
+ <p>Game UID: ${safe(o.gameUID)}</p>
  <p>Amount: ₹${o.amount}</p>
- <p>Items: ${o.items.map(x=>safe(x.name)+" × "+x.qty).join(", ")}</p>
+ <p>Products: ${o.items.map(x=>safe(x.name)+" × "+x.qty).join(", ")}</p>
  <p>Rating: ${o.rating} ★</p>
  <p>UTR: ${safe(o.utr||"Not submitted")}</p>
  <p>Status: ${safe(o.status)}</p>
@@ -622,7 +642,7 @@ function renderAdmin(){
 
  $("users").innerHTML=users.map((u,i)=>`
  <div class="order">
- <b>${safe(u.username)}</b>
+ <h3>${safe(u.username)}</h3>
  <p>Status: ${u.banned?"🔴 BANNED":"🟢 ACTIVE"}</p>
  <button onclick="toggleBan(${i})">${u.banned?"UNBAN":"BAN USER"}</button>
  <button class="danger" onclick="deleteUser(${i})">DELETE ACCOUNT</button>
@@ -635,9 +655,17 @@ function renderAdmin(){
  </div>`).join("");
 }
 
+function deleteProduct(i){
+ if(!isAdmin)return;
+ if(!confirm("Delete product?"))return;
+ products.splice(i,1);
+ saveAll();
+ renderAdmin();
+}
+
 // THEMES
 const themes={
- rgb:["#080808","#ff1744"],
+ rgb:["#08080d","#ff1744"],
  red:["#090909","#ff3030"],
  blue:["#07111f","#168cff"],
  purple:["#100817","#a855ff"],
@@ -645,10 +673,9 @@ const themes={
  gold:["#15100a","#e5ae32"]
 };
 
-function changeTheme(t){
- if(!isAdmin)return;
- if(!themes[t])return;
- settings.theme=t;
+function changeTheme(name){
+ if(!isAdmin||!themes[name])return;
+ settings.theme=name;
  applyTheme();
 }
 
@@ -671,15 +698,16 @@ function saveSettings(){
 function saveUPI(){
  if(!isAdmin)return;
  let v=$("upiInput").value.trim();
- if(!v)return notice("Enter a valid UPI ID.");
+ if(!v)return notice("Enter UPI ID.");
  settings.upi=v;
  saveAll();
- notice("UPI settings saved.");
+ notice("UPI saved.");
 }
 
-// START
+// INITIALIZE
 applyTheme();
 renderProducts();
+
 </script>
 </body>
 </html>
