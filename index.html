@@ -1,0 +1,713 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZONEPUSHER PREMIUM</title>
+
+<style>
+:root{
+ --bg:#08080d;
+ --card:#15151f;
+ --main:#ff1744;
+ --text:#fff;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Arial,sans-serif;transition:.3s;
+}
+header{
+ text-align:center;padding:28px 10px;
+ background:linear-gradient(120deg,#15151f,#241329,#101522);
+ border-bottom:1px solid #ffffff20;
+}
+header h1{
+ margin:0;font-size:34px;letter-spacing:3px;
+ color:var(--main);text-shadow:0 0 20px var(--main);
+}
+header p{color:#aaa;margin-bottom:0}
+nav{
+ display:flex;justify-content:center;flex-wrap:wrap;
+ gap:10px;padding:18px 8px;
+}
+button{
+ background:linear-gradient(110deg,#ff1744,#9c27ff,#00c8ff,#ff1744);
+ background-size:300% 300%;
+ animation:rgb 5s linear infinite;
+ color:white;border:1px solid #ffffff40;
+ padding:13px 18px;border-radius:12px;
+ font-weight:bold;cursor:pointer;margin:4px;
+ transition:.25s;
+}
+button:hover{
+ transform:translateY(-3px);
+ box-shadow:0 0 20px #a855ff;
+}
+@keyframes rgb{
+ 0%{background-position:0% 50%}
+ 100%{background-position:300% 50%}
+}
+.card{
+ background:var(--card);
+ border:1px solid #ffffff20;
+ border-radius:18px;
+ padding:22px;
+ width:94%;max-width:650px;
+ margin:18px auto;
+ box-shadow:0 8px 35px #0005;
+}
+h2,h3{color:var(--main)}
+input,select,textarea{
+ display:block;width:100%;
+ padding:14px;margin:11px 0;
+ background:#222230;color:white;
+ border:1px solid #454555;
+ border-radius:10px;
+}
+input:focus,select:focus{
+ outline:none;border-color:var(--main);
+ box-shadow:0 0 10px var(--main);
+}
+.hidden{display:none!important}
+.product,.order{
+ background:#222230;border:1px solid #444;
+ padding:16px;border-radius:13px;margin:13px 0;
+}
+.price,.total{color:#35e89b;font-weight:bold}
+.small{font-size:13px;color:#aaa}
+.stars{font-size:34px;color:gold}
+.preview{width:100%;max-height:220px;object-fit:contain}
+hr{border:0;border-top:1px solid #444;margin:22px 0}
+.danger{background:linear-gradient(120deg,#b91c1c,#ff1744)}
+footer{text-align:center;color:#888;padding:25px}
+
+/* PREMIUM POPUP */
+#popup{
+ position:fixed;inset:0;background:#000c;
+ display:none;align-items:center;justify-content:center;
+ z-index:9999;padding:20px;
+}
+.popup-box{
+ width:100%;max-width:380px;
+ background:#191521;border:1px solid #a855ff;
+ border-radius:20px;padding:25px;text-align:center;
+ box-shadow:0 0 35px #a855ff55;
+}
+.popup-box h2{color:#d38bff}
+#popupMessage{color:#ddd;line-height:1.6;white-space:pre-wrap}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1 id="heading">ZONEPUSHER</h1>
+<p>PREMIUM GAMING STORE</p>
+</header>
+
+<nav>
+<button onclick="show('home')">HOME</button>
+<button onclick="show('login')">LOGIN</button>
+<button onclick="show('register')">REGISTER</button>
+<button onclick="show('cart')">🛒 CART</button>
+<button onclick="show('history')">MY ORDERS</button>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="card">
+<h2>WELCOME TO ZONEPUSHER</h2>
+<p id="welcome">Your Ultimate Gaming Store</p>
+<div id="products"></div>
+</section>
+
+<!-- REGISTER -->
+<section id="register" class="card hidden">
+<h2>CREATE ACCOUNT</h2>
+<input id="reguser" placeholder="Username">
+<input id="regpass" type="password" placeholder="Password">
+<input id="regconfirm" type="password" placeholder="Confirm Password">
+<button onclick="register()">CREATE ACCOUNT</button>
+</section>
+
+<!-- LOGIN -->
+<section id="login" class="card hidden">
+<h2>ACCOUNT LOGIN</h2>
+<input id="loginuser" placeholder="Username">
+<input id="loginpass" type="password" placeholder="Password">
+<button onclick="login()">LOGIN NOW</button>
+<p class="small">New customer? Create an account using Register.</p>
+</section>
+
+<!-- CART -->
+<section id="cart" class="card hidden">
+<h2>YOUR CART 🛒</h2>
+<div id="cartitems"></div>
+<p class="total" id="carttotal">Total ₹0</p>
+<button onclick="checkout()">PROCEED TO CHECKOUT</button>
+</section>
+
+<!-- CHECKOUT -->
+<section id="checkout" class="card hidden">
+<h2>GAME ORDER DETAILS</h2>
+
+<label>Choose Your Game</label>
+<select id="gameName">
+<option value="Free Fire">Free Fire</option>
+<option value="Free Fire MAX">Free Fire MAX</option>
+<option value="Other">Other Game</option>
+</select>
+
+<label>Game User ID / UID</label>
+<input id="gameUID" placeholder="Enter your Game UID">
+
+<p class="small">Please double-check your Game UID before placing your order.</p>
+
+<hr>
+<h3>RATE YOUR EXPERIENCE</h3>
+<div class="stars" id="rating"></div>
+<p id="ratingText">Select your rating</p>
+
+<div class="order">
+<h3>REFUND POLICY</h3>
+<p>Digital products are generally non-refundable after successful delivery.</p>
+<p>Exceptions may apply for failed or duplicate payments, undelivered orders, defective products, or where required by applicable law.</p>
+<label>
+<input type="checkbox" id="acceptPolicy" style="width:auto;display:inline">
+I accept the refund policy.
+</label>
+</div>
+
+<p class="total" id="checkoutTotal"></p>
+<button onclick="createOrder()">CONTINUE TO PAYMENT</button>
+</section>
+
+<!-- PAYMENT -->
+<section id="payment" class="card hidden">
+<h2>SECURE PAYMENT CENTER</h2>
+<p>Your unique order code:</p>
+<h2 id="paymentCode"></h2>
+<p class="total" id="paymentAmount"></p>
+
+<div class="order">
+<h3>UPI PAYMENT</h3>
+<p id="upiDisplay">Not configured</p>
+<button onclick="copyUPI()">COPY UPI ID</button>
+</div>
+
+<input id="utr" placeholder="Enter UPI Transaction ID / UTR">
+<p>Upload payment screenshot:</p>
+<input type="file" id="screenshot" accept="image/*">
+<img id="preview" class="preview hidden">
+<button onclick="submitPayment()">SUBMIT PAYMENT</button>
+</section>
+
+<!-- HISTORY -->
+<section id="history" class="card hidden">
+<h2>MY ORDER HISTORY</h2>
+<div id="myOrders"></div>
+</section>
+
+<!-- ADMIN DASHBOARD -->
+<section id="dashboard" class="card hidden">
+
+<h2>ADMIN CONTROL CENTER ⚙️</h2>
+
+<h3>🎨 WEBSITE CUSTOMIZATION</h3>
+<select id="themeSelect" onchange="changeTheme(this.value)">
+<option value="rgb">RGB GAMING</option>
+<option value="red">RED PREMIUM</option>
+<option value="blue">BLUE NEON</option>
+<option value="purple">PURPLE NEON</option>
+<option value="green">GREEN GAMING</option>
+<option value="gold">GOLD LUXURY</option>
+</select>
+<input id="siteName" placeholder="Website Name">
+<button onclick="saveSettings()">SAVE DESIGN</button>
+
+<hr>
+<h3>➕ ADD PRODUCT</h3>
+<input id="pname" placeholder="Product Name">
+<input id="pprice" type="number" placeholder="Price">
+<button onclick="addProduct()">ADD PRODUCT</button>
+
+<h3>PRODUCT MANAGEMENT</h3>
+<div id="adminProducts"></div>
+
+<hr>
+<h3>💳 PAYMENT SETTINGS</h3>
+<input id="upiInput" placeholder="UPI ID">
+<button onclick="saveUPI()">SAVE UPI</button>
+
+<hr>
+<h3>📦 ALL ORDERS</h3>
+<div id="orders"></div>
+
+<hr>
+<h3>👥 USER MANAGEMENT</h3>
+<div id="users"></div>
+
+<button class="danger" onclick="adminLogout()">LOGOUT ADMIN</button>
+</section>
+
+<div id="popup">
+ <div class="popup-box">
+  <h2 id="popupTitle">ZONEPUSHER</h2>
+  <p id="popupMessage"></p>
+  <button onclick="closePopup()">OK</button>
+ </div>
+</div>
+
+<footer>
+ZONEPUSHER © 2026
+<p>POWERED BY ZONEPUSHER</p>
+</footer>
+
+<script>
+
+// DEMO STORAGE
+const $=id=>document.getElementById(id);
+const get=(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
+const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+let users=get("zp_users",[]);
+let products=get("zp_products",[]);
+let orders=get("zp_orders",[]);
+let settings=get("zp_settings",{
+ name:"ZONEPUSHER",theme:"rgb",upi:"YOUR-UPI-ID@BANK"
+});
+
+let currentUser=null;
+let isAdmin=false;
+let cart=[];
+let selectedRating=0;
+let activeOrder=null;
+
+// ADMIN DEMO CREDENTIALS
+const ADMIN_USERNAME="Admin";
+const ADMIN_PASSWORD="9570074883";
+
+// PREMIUM POPUP
+function notice(message,title="ZONEPUSHER"){
+ $("popupTitle").textContent=title;
+ $("popupMessage").textContent=message;
+ $("popup").style.display="flex";
+}
+function closePopup(){
+ $("popup").style.display="none";
+}
+
+// NAVIGATION
+function show(id){
+ document.querySelectorAll("body > section")
+ .forEach(s=>s.classList.add("hidden"));
+ $(id).classList.remove("hidden");
+
+ if(id==="home")renderProducts();
+ if(id==="cart")renderCart();
+ if(id==="history")renderHistory();
+ if(id==="dashboard"&&isAdmin)renderAdmin();
+}
+
+function safe(v){
+ return String(v).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",
+ '"':"&quot;","'":"&#39;"
+ })[c]);
+}
+
+function saveAll(){
+ put("zp_users",users);
+ put("zp_products",products);
+ put("zp_orders",orders);
+ put("zp_settings",settings);
+}
+
+// REGISTER
+function register(){
+ let u=$("reguser").value.trim();
+ let p=$("regpass").value;
+
+ if(!u||!p)return notice("Please fill all fields.");
+ if(u.toLowerCase()==="admin")return notice("This username is reserved.");
+ if(p!==$("regconfirm").value)return notice("Passwords do not match.");
+ if(users.some(x=>x.username.toLowerCase()===u.toLowerCase()))
+ return notice("Username already exists.");
+
+ users.push({username:u,password:p,banned:false});
+ saveAll();
+
+ notice("Account created successfully!");
+ show("login");
+}
+
+// LOGIN - USER AND ADMIN
+function login(){
+ let u=$("loginuser").value.trim();
+ let p=$("loginpass").value;
+
+ if(u===ADMIN_USERNAME && p===ADMIN_PASSWORD){
+ currentUser=null;
+ isAdmin=true;
+ $("loginpass").value="";
+ show("dashboard");
+ renderAdmin();
+ return;
+ }
+
+ let user=users.find(x=>
+ x.username.toLowerCase()===u.toLowerCase()&&x.password===p
+ );
+
+ if(!user)return notice("Wrong username or password.");
+ if(user.banned)return notice("Your account is banned. Contact admin.");
+
+ currentUser=u;
+ isAdmin=false;
+ $("welcome").textContent="Welcome, "+u;
+ notice("Login successful!");
+ show("home");
+}
+
+// LOGOUT
+function adminLogout(){
+ isAdmin=false;
+ show("home");
+ notice("Admin logged out.");
+}
+
+function userLogout(){
+ currentUser=null;
+ show("home");
+ notice("Logged out.");
+}
+
+// PRODUCTS
+function addProduct(){
+ if(!isAdmin)return;
+
+ let n=$("pname").value.trim();
+ let p=Number($("pprice").value);
+
+ if(!n||p<=0)return notice("Enter valid product details.");
+
+ products.push({id:Date.now(),name:n,price:p});
+ saveAll();
+ renderAdmin();
+ $("pname").value="";
+ $("pprice").value="";
+ notice("Product added.");
+}
+
+function renderProducts(){
+ $("products").innerHTML=products.map((p,i)=>`
+ <div class="product">
+ <h3>${safe(p.name)}</h3>
+ <p class="price">₹${p.price}</p>
+ <button onclick="addCart(${i})">ADD TO CART</button>
+ </div>`).join("")||"No products available.";
+}
+
+function addCart(i){
+ let p=products[i];
+ if(!p)return;
+
+ let found=cart.find(x=>x.id===p.id);
+ if(found)found.qty++;
+ else cart.push({...p,qty:1});
+
+ notice("Product added to cart.");
+}
+
+function total(){
+ return cart.reduce((s,p)=>s+p.price*p.qty,0);
+}
+
+function renderCart(){
+ $("cartitems").innerHTML=cart.map((p,i)=>`
+ <div class="product">
+ <b>${safe(p.name)}</b>
+ <p>₹${p.price} × ${p.qty}</p>
+ <button onclick="quantity(${i},1)">+</button>
+ <button onclick="quantity(${i},-1)">-</button>
+ <button onclick="removeCart(${i})">REMOVE</button>
+ </div>`).join("")||"Your cart is empty.";
+
+ $("carttotal").textContent="Total ₹"+total();
+}
+
+function quantity(i,n){
+ cart[i].qty+=n;
+ if(cart[i].qty<=0)cart.splice(i,1);
+ renderCart();
+}
+
+function removeCart(i){
+ cart.splice(i,1);
+ renderCart();
+}
+
+// CHECKOUT
+function checkout(){
+ if(!currentUser)return notice("Please login first.");
+ if(!cart.length)return notice("Your cart is empty.");
+
+ selectedRating=0;
+ updateStars();
+ $("acceptPolicy").checked=false;
+ $("checkoutTotal").textContent="Total ₹"+total();
+ show("checkout");
+}
+
+// STAR RATING
+function setRating(n){
+ selectedRating=n;
+ updateStars();
+ $("ratingText").textContent=n+" / 5 Stars";
+}
+
+function updateStars(){
+ $("rating").innerHTML=[1,2,3,4,5].map(n=>
+ `<span onclick="setRating(${n})">${n<=selectedRating?"★":"☆"}</span>`
+ ).join("");
+}
+
+// CREATE ORDER
+function createOrder(){
+ let uid=$("gameUID").value.trim();
+ if(!uid)return notice("Please enter your Game UID.");
+ if(!selectedRating)return notice("Please give a star rating.");
+ if(!$("acceptPolicy").checked)return notice("Please accept the refund policy.");
+
+ let code="ZP"+Date.now().toString(36).toUpperCase();
+
+ let order={
+ id:code,
+ user:currentUser,
+ game:$("gameName").value,
+ gameUID:uid,
+ items:cart.map(x=>({...x})),
+ amount:total(),
+ rating:selectedRating,
+ status:"Awaiting Payment",
+ utr:"",
+ screenshot:"",
+ date:new Date().toLocaleString()
+ };
+
+ orders.push(order);
+ saveAll();
+ activeOrder=code;
+ cart=[];
+
+ $("paymentCode").textContent=code;
+ $("paymentAmount").textContent="PAY ₹"+order.amount;
+ $("upiDisplay").textContent=settings.upi;
+
+ show("payment");
+}
+
+// PAYMENT
+function copyUPI(){
+ if(!settings.upi||settings.upi==="YOUR-UPI-ID@BANK")
+ return notice("Payment UPI is not configured.");
+
+ navigator.clipboard.writeText(settings.upi)
+ .then(()=>notice("UPI ID copied!"))
+ .catch(()=>notice("UPI ID: "+settings.upi));
+}
+
+$("screenshot").addEventListener("change",function(){
+ let file=this.files[0];
+ if(!file)return;
+
+ if(!file.type.startsWith("image/"))return notice("Select an image.");
+ if(file.size>1000000)return notice("Screenshot must be below 1 MB.");
+
+ let reader=new FileReader();
+ reader.onload=e=>{
+ $("preview").src=e.target.result;
+ $("preview").classList.remove("hidden");
+ };
+ reader.readAsDataURL(file);
+});
+
+function submitPayment(){
+ let o=orders.find(x=>x.id===activeOrder);
+ if(!o)return notice("Order not found.");
+
+ let utr=$("utr").value.trim();
+ let file=$("screenshot").files[0];
+
+ if(!utr||!file)return notice("Enter UTR and upload screenshot.");
+
+ let reader=new FileReader();
+ reader.onload=e=>{
+ o.utr=utr;
+ o.screenshot=e.target.result;
+ o.status="Payment Verification Pending";
+ saveAll();
+
+ $("utr").value="";
+ $("screenshot").value="";
+ $("preview").classList.add("hidden");
+
+ notice("Payment submitted successfully!");
+ show("history");
+ };
+ reader.readAsDataURL(file);
+}
+
+// CUSTOMER HISTORY
+function renderHistory(){
+ if(!currentUser){
+ $("myOrders").textContent="Please login first.";
+ return;
+ }
+
+ $("myOrders").innerHTML=orders.filter(o=>o.user===currentUser)
+ .map(o=>`
+ <div class="order">
+ <h3>${safe(o.id)}</h3>
+ <p>Game: ${safe(o.game)}</p>
+ <p>Game UID: ${safe(o.gameUID)}</p>
+ <p>Amount: ₹${o.amount}</p>
+ <p>Rating: ${o.rating} ★</p>
+ <p>Status: ${safe(o.status)}</p>
+ <p>${safe(o.date)}</p>
+ </div>`).join("")||"No orders yet.";
+}
+
+// ADMIN ORDER MANAGEMENT
+function changeOrder(i,status){
+ if(!isAdmin)return;
+ orders[i].status=status;
+ saveAll();
+ renderAdmin();
+}
+
+function deleteOrder(i){
+ if(!isAdmin)return;
+ if(!confirm("Delete this order permanently?"))return;
+ orders.splice(i,1);
+ saveAll();
+ renderAdmin();
+}
+
+// BAN AND UNBAN
+function toggleBan(i){
+ if(!isAdmin)return;
+ users[i].banned=!users[i].banned;
+ saveAll();
+ renderAdmin();
+}
+
+function deleteUser(i){
+ if(!isAdmin)return;
+ let name=users[i].username;
+
+ if(!confirm("Delete "+name+" and their order history?"))return;
+
+ orders=orders.filter(o=>o.user!==name);
+ users.splice(i,1);
+ saveAll();
+ renderAdmin();
+}
+
+// ADMIN DASHBOARD
+function renderAdmin(){
+ if(!isAdmin)return;
+
+ $("siteName").value=settings.name;
+ $("themeSelect").value=settings.theme;
+ $("upiInput").value=settings.upi;
+
+ $("orders").innerHTML=orders.map((o,i)=>`
+ <div class="order">
+ <h3>${safe(o.id)}</h3>
+ <p>Customer: ${safe(o.user)}</p>
+ <p>Game: ${safe(o.game)}</p>
+ <p>Game UID: ${safe(o.gameUID)}</p>
+ <p>Amount: ₹${o.amount}</p>
+ <p>Products: ${o.items.map(x=>safe(x.name)+" × "+x.qty).join(", ")}</p>
+ <p>Rating: ${o.rating} ★</p>
+ <p>UTR: ${safe(o.utr||"Not submitted")}</p>
+ <p>Status: ${safe(o.status)}</p>
+ ${o.screenshot?`<img class="preview" src="${o.screenshot}" alt="Payment screenshot">`:""}
+ <button onclick="changeOrder(${i},'Confirmed')">CONFIRM</button>
+ <button onclick="changeOrder(${i},'Cancelled')">CANCEL</button>
+ <button class="danger" onclick="deleteOrder(${i})">DELETE ORDER</button>
+ </div>`).join("")||"No orders.";
+
+ $("users").innerHTML=users.map((u,i)=>`
+ <div class="order">
+ <h3>${safe(u.username)}</h3>
+ <p>Status: ${u.banned?"🔴 BANNED":"🟢 ACTIVE"}</p>
+ <button onclick="toggleBan(${i})">${u.banned?"UNBAN":"BAN USER"}</button>
+ <button class="danger" onclick="deleteUser(${i})">DELETE ACCOUNT</button>
+ </div>`).join("")||"No users.";
+
+ $("adminProducts").innerHTML=products.map((p,i)=>`
+ <div class="product">
+ ${safe(p.name)} - ₹${p.price}
+ <button class="danger" onclick="deleteProduct(${i})">DELETE</button>
+ </div>`).join("");
+}
+
+function deleteProduct(i){
+ if(!isAdmin)return;
+ if(!confirm("Delete product?"))return;
+ products.splice(i,1);
+ saveAll();
+ renderAdmin();
+}
+
+// THEMES
+const themes={
+ rgb:["#08080d","#ff1744"],
+ red:["#090909","#ff3030"],
+ blue:["#07111f","#168cff"],
+ purple:["#100817","#a855ff"],
+ green:["#06130e","#00c985"],
+ gold:["#15100a","#e5ae32"]
+};
+
+function changeTheme(name){
+ if(!isAdmin||!themes[name])return;
+ settings.theme=name;
+ applyTheme();
+}
+
+function applyTheme(){
+ let t=themes[settings.theme]||themes.rgb;
+ document.documentElement.style.setProperty("--bg",t[0]);
+ document.documentElement.style.setProperty("--main",t[1]);
+ $("heading").textContent=settings.name;
+}
+
+function saveSettings(){
+ if(!isAdmin)return;
+ settings.name=$("siteName").value.trim()||"ZONEPUSHER";
+ settings.theme=$("themeSelect").value;
+ saveAll();
+ applyTheme();
+ notice("Website design saved.");
+}
+
+function saveUPI(){
+ if(!isAdmin)return;
+ let v=$("upiInput").value.trim();
+ if(!v)return notice("Enter UPI ID.");
+ settings.upi=v;
+ saveAll();
+ notice("UPI saved.");
+}
+
+// INITIALIZE
+applyTheme();
+renderProducts();
+
+</script>
+</body>
+</html>
