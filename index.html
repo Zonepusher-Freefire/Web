@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZONEPUSHER</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:white;font-family:Arial}
+header{background:#151515;padding:18px;text-align:center;
+color:#ff3030;font-size:25px;font-weight:bold}
+nav{display:flex;justify-content:center;gap:10px;padding:15px;flex-wrap:wrap}
+button{background:#ff3030;color:white;border:0;padding:12px 18px;
+border-radius:7px;font-weight:bold;cursor:pointer}
+input{display:block;width:100%;padding:13px;margin:10px 0;
+background:#222;color:white;border:1px solid #444;border-radius:7px}
+.card{background:#171717;padding:20px;margin:15px auto;
+border-radius:12px;max-width:420px}
+h2{color:#ff3030}
+.hidden{display:none}
+.product{border:1px solid #444;padding:15px;margin:10px 0;border-radius:8px}
+</style>
+</head>
+<body>
+
+<header>ZONEPUSHER</header>
+
+<nav>
+<button onclick="show('home')">HOME</button>
+<button onclick="show('login')">LOGIN</button>
+<button onclick="show('register')">REGISTER</button>
+<button onclick="show('cart')">CART 🛒</button>
+<button onclick="show('admin')">ADMIN</button>
+</nav>
+
+<section id="home" class="card">
+<h2>WELCOME TO ZONEPUSHER</h2>
+<p>Your Gaming Store</p>
+<div id="products"></div>
+</section>
+
+<section id="register" class="card hidden">
+<h2>Create Account</h2>
+<input id="reguser" placeholder="Username">
+<input id="regpass" type="password" placeholder="Password">
+<input id="regconfirm" type="password" placeholder="Confirm Password">
+<button onclick="register()">REGISTER</button>
+</section>
+
+<section id="login" class="card hidden">
+<h2>USER LOGIN</h2>
+<input id="loginuser" placeholder="Username">
+<input id="loginpass" type="password" placeholder="Password">
+<button onclick="login()">LOGIN</button>
+</section>
+
+<section id="admin" class="card hidden">
+<h2>ADMIN LOGIN</h2>
+<input id="adminpass" type="password" placeholder="Admin Password">
+<button onclick="adminLogin()">LOGIN AS ADMIN</button>
+</section>
+
+<section id="dashboard" class="card hidden">
+<h2>ADMIN DASHBOARD</h2>
+<input id="pname" placeholder="Product Name">
+<input id="pprice" type="number" placeholder="Product Price">
+<button onclick="addProduct()">ADD PRODUCT</button>
+<h3>ORDERS</h3>
+<div id="orders"></div>
+<h3>REGISTERED USERS</h3>
+<div id="users"></div>
+</section>
+
+<section id="cart" class="card hidden">
+<h2>YOUR CART</h2>
+<div id="cartitems"></div>
+<button onclick="checkout()">PLACE ORDER</button>
+</section>
+
+<script>
+let users=JSON.parse(localStorage.getItem("users")||"[]");
+let products=JSON.parse(localStorage.getItem("products")||"[]");
+let cart=[];
+let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+let currentUser=null;
+
+function save(){
+localStorage.setItem("users",JSON.stringify(users));
+localStorage.setItem("products",JSON.stringify(products));
+localStorage.setItem("orders",JSON.stringify(orders));
+}
+
+function show(id){
+document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+if(id==="home")renderProducts();
+if(id==="cart")renderCart();
+}
+
+function register(){
+let u=reguser.value.trim(),p=regpass.value,c=regconfirm.value;
+if(!u||!p)return alert("Fill all fields");
+if(p!==c)return alert("Passwords do not match");
+if(users.some(x=>x.username.toLowerCase()===u.toLowerCase()))
+return alert("Username already exists!");
+users.push({username:u,password:p});
+save();
+alert("Registration successful!");
+show("login");
+}
+
+function login(){
+let u=loginuser.value.trim(),p=loginpass.value;
+let found=users.find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===p);
+if(!found)return alert("Wrong username or password");
+currentUser=u;
+alert("Welcome "+u);
+show("home");
+}
+
+function adminLogin(){
+if(adminpass.value==="12341234"){
+show("dashboard");
+renderAdmin();
+}else alert("Wrong Admin Password");
+}
+
+function addProduct(){
+let n=pname.value.trim(),p=Number(pprice.value);
+if(!n||p<=0)return alert("Enter valid details");
+products.push({name:n,price:p});
+save();
+pname.value=pprice.value="";
+renderAdmin();
+alert("Product added");
+}
+
+function renderProducts(){
+productsDiv=document.getElementById("products");
+productsDiv.innerHTML="";
+products.forEach((p,i)=>{
+productsDiv.innerHTML+=`
+<div class="product">
+<h3>${escapeHTML(p.name)}</h3>
+<p>₹${p.price}</p>
+<button onclick="addCart(${i})">ADD TO CART</button>
+</div>`;
+});
+}
+
+function addCart(i){
+cart.push(products[i]);
+alert("Added to cart");
+}
+
+function renderCart(){
+cartitems.innerHTML=cart.map((p,i)=>`
+<div class="product">${escapeHTML(p.name)} - ₹${p.price}
+<button onclick="cart.splice(${i},1);renderCart()">REMOVE</button>
+</div>`).join("");
+}
+
+function checkout(){
+if(!currentUser)return alert("Please login first");
+if(!cart.length)return alert("Cart is empty");
+let code="ZP"+Date.now();
+orders.push({user:currentUser,items:[...cart],code:code,status:"Pending",message:""});
+cart=[];
+save();
+alert("Order created! Your code: "+code);
+show("home");
+}
+
+function renderAdmin(){
+ordersDiv=document.getElementById("orders");
+ordersDiv.innerHTML=orders.map((o,i)=>`
+<div class="product">
+User: ${escapeHTML(o.user)}<br>
+Order: ${escapeHTML(o.code)}<br>
+Status: ${escapeHTML(o.status)}<br>
+<button onclick="changeOrder(${i},'Confirmed')">CONFIRM</button>
+<button onclick="changeOrder(${i},'Cancelled')">CANCEL</button>
+</div>`).join("");
+usersDiv.innerHTML=users.map(u=>`<p>${escapeHTML(u.username)}</p>`).join("");
+}
+
+function changeOrder(i,status){
+orders[i].status=status;
+save();
+renderAdmin();
+}
+
+function escapeHTML(s){
+return String(s).replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+})[c]);
+}
+
+renderProducts();
+</script>
+</body>
+</html>
