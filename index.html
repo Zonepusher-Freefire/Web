@@ -5,60 +5,131 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZONEPUSHER</title>
+
 <style>
 :root{
- --main:#ff3030;
- --bg:#090909;
+ --bg:#080808;
  --card:#171717;
+ --main:#ff1744;
  --text:#ffffff;
 }
 *{box-sizing:border-box}
 body{
- margin:0;background:var(--bg);color:var(--text);
- font-family:Arial,sans-serif;transition:.3s;
+ margin:0;
+ background:var(--bg);
+ color:var(--text);
+ font-family:Arial,sans-serif;
+ transition:.3s;
 }
 header{
- padding:22px;text-align:center;background:var(--card);
- color:var(--main);font-size:27px;font-weight:bold;
+ background:#151515;
+ padding:25px 10px;
+ text-align:center;
+ font-size:35px;
+ font-weight:900;
  letter-spacing:2px;
+ color:var(--main);
+ text-shadow:0 0 15px var(--main);
+ border-bottom:1px solid #333;
 }
 nav{
- display:flex;gap:8px;justify-content:center;
- flex-wrap:wrap;padding:15px;
+ display:flex;
+ justify-content:center;
+ flex-wrap:wrap;
+ gap:12px;
+ padding:20px 10px;
 }
 button{
- background:var(--main);color:white;border:0;
- padding:12px 16px;border-radius:8px;
- cursor:pointer;font-weight:bold;margin:4px;
+ background:linear-gradient(110deg,#ff1744,#9c27ff,#00c8ff,#ff1744);
+ background-size:300% 300%;
+ color:white;
+ border:1px solid #ffffff50;
+ padding:14px 20px;
+ border-radius:13px;
+ font-size:15px;
+ font-weight:bold;
+ cursor:pointer;
+ animation:rgbMove 5s linear infinite;
+ box-shadow:0 0 12px #9c27ff55;
+ transition:.25s;
+ margin:4px;
 }
-button:hover{filter:brightness(1.2)}
-input,select,textarea{
- width:100%;padding:13px;margin:8px 0;
- background:#252525;color:white;
- border:1px solid #555;border-radius:8px;
+button:hover{
+ transform:translateY(-4px) scale(1.03);
+ box-shadow:0 0 15px #ff1744,0 0 25px #00c8ff;
+}
+@keyframes rgbMove{
+ 0%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+ 100%{background-position:0% 50%}
 }
 .card{
- max-width:520px;margin:15px auto;padding:20px;
- background:var(--card);border-radius:14px;
- border:1px solid #333;
+ background:var(--card);
+ border:1px solid #444;
+ border-radius:18px;
+ padding:25px;
+ margin:18px auto;
+ width:94%;
+ max-width:650px;
+ box-shadow:0 0 20px #a000ff12;
 }
 h2{color:var(--main)}
+h3{color:var(--main)}
+input,select,textarea{
+ display:block;
+ width:100%;
+ padding:14px;
+ margin:12px 0;
+ background:#242424;
+ border:1px solid #555;
+ border-radius:9px;
+ color:white;
+ font-size:15px;
+}
 .hidden{display:none!important}
 .product,.order{
- padding:15px;margin:12px 0;
- background:#242424;border-radius:10px;
+ background:#242424;
+ border:1px solid #444;
+ border-radius:12px;
+ padding:16px;
+ margin:13px 0;
 }
-.price{color:#35e88b;font-weight:bold}
+.price,.total{
+ color:#35e89b;
+ font-weight:bold;
+ font-size:20px;
+}
 .small{color:#aaa;font-size:13px}
-.stars{font-size:30px;color:gold;cursor:pointer}
+.stars{
+ font-size:35px;
+ color:gold;
+ cursor:pointer;
+}
 .stars span{padding:3px}
-.total{font-size:22px;color:#35e88b;font-weight:bold}
-img.preview{width:100%;max-height:220px;object-fit:contain}
+.preview{
+ width:100%;
+ max-height:250px;
+ object-fit:contain;
+ margin-top:10px;
+}
+.theme-box{
+ display:flex;
+ gap:10px;
+ flex-wrap:wrap;
+}
+.theme-box button{flex:1}
+hr{border:0;border-top:1px solid #444;margin:25px 0}
+footer{
+ text-align:center;
+ color:#888;
+ padding:25px;
+}
 </style>
 </head>
+
 <body>
 
-<header>ZONEPUSHER</header>
+<header id="heading">ZONEPUSHER</header>
 
 <nav>
 <button onclick="show('home')">HOME</button>
@@ -69,20 +140,24 @@ img.preview{width:100%;max-height:220px;object-fit:contain}
 <button onclick="show('admin')">ADMIN</button>
 </nav>
 
+<!-- HOME -->
 <section id="home" class="card">
 <h2>WELCOME TO ZONEPUSHER</h2>
-<p>Your Gaming Store</p>
+<p>Your Premium Gaming Store</p>
+<p id="welcome"></p>
 <div id="products"></div>
 </section>
 
+<!-- REGISTER -->
 <section id="register" class="card hidden">
 <h2>CREATE ACCOUNT</h2>
 <input id="reguser" placeholder="Username">
 <input id="regpass" type="password" placeholder="Password">
 <input id="regconfirm" type="password" placeholder="Confirm Password">
-<button onclick="register()">REGISTER</button>
+<button onclick="register()">REGISTER NOW</button>
 </section>
 
+<!-- LOGIN -->
 <section id="login" class="card hidden">
 <h2>USER LOGIN</h2>
 <input id="loginuser" placeholder="Username">
@@ -91,77 +166,81 @@ img.preview{width:100%;max-height:220px;object-fit:contain}
 <button onclick="logout()">LOGOUT</button>
 </section>
 
+<!-- CART -->
 <section id="cart" class="card hidden">
-<h2>YOUR CART</h2>
+<h2>YOUR CART 🛒</h2>
 <div id="cartitems"></div>
 <p class="total" id="carttotal">Total: ₹0</p>
 <button onclick="showCheckout()">PROCEED TO CHECKOUT</button>
 </section>
 
+<!-- CHECKOUT -->
 <section id="checkout" class="card hidden">
-<h2>ORDER DETAILS</h2>
-<p>Rate your shopping experience:</p>
-<div class="stars" id="rating">
-<span onclick="setRating(1)">☆</span>
-<span onclick="setRating(2)">☆</span>
-<span onclick="setRating(3)">☆</span>
-<span onclick="setRating(4)">☆</span>
-<span onclick="setRating(5)">☆</span>
-</div>
-<p id="ratingText">Select your rating</p>
+<h2>ORDER CHECKOUT</h2>
+<p>Give your shopping experience a rating:</p>
+<div class="stars" id="rating"></div>
+<p id="ratingText">Select your stars</p>
+<hr>
 <p class="total" id="checkoutTotal"></p>
 <button onclick="createPayment()">CONTINUE TO PAYMENT</button>
 </section>
 
+<!-- PAYMENT -->
 <section id="payment" class="card hidden">
-<h2>PAYMENT PAGE</h2>
-<p>Order Payment Code:</p>
+<h2>PAYMENT CENTER</h2>
+<p>Your unique payment code:</p>
 <h2 id="paymentCode"></h2>
 <p class="total" id="paymentAmount"></p>
 
-<p>Pay using the UPI details below:</p>
 <div class="product">
-<p>UPI ID: <b id="upiDisplay">YOUR-UPI-ID@BANK</b></p>
-<p class="small">Admin must configure the correct UPI ID and payment QR before accepting payments.</p>
+<h3>PAYMENT DETAILS</h3>
+<p>UPI ID:</p>
+<h3 id="upiDisplay">YOUR-UPI-ID@BANK</h3>
 <button onclick="copyUPI()">COPY UPI ID</button>
+<p class="small">Use the configured UPI ID or QR to make your payment.</p>
 </div>
 
-<p>After payment, enter your transaction reference:</p>
-<input id="utr" placeholder="Enter UPI Transaction ID / UTR">
-
+<h3>PAYMENT VERIFICATION</h3>
+<input id="utr" placeholder="Enter Payment UTR / Reference Number">
 <p>Upload Payment Screenshot:</p>
-<input type="file" id="screenshot" accept="image/*">
+<input id="screenshot" type="file" accept="image/*">
 <img id="imagePreview" class="preview hidden">
-
 <button onclick="submitPayment()">SUBMIT PAYMENT</button>
-<p class="small">Your order will remain pending until admin verifies it.</p>
 </section>
 
+<!-- HISTORY -->
 <section id="history" class="card hidden">
 <h2>MY ORDER HISTORY</h2>
 <div id="myOrders"></div>
 </section>
 
+<!-- ADMIN LOGIN -->
 <section id="admin" class="card hidden">
 <h2>ADMIN LOGIN</h2>
 <input id="adminpass" type="password" placeholder="Admin Password">
-<button onclick="adminLogin()">LOGIN</button>
+<button onclick="adminLogin()">ADMIN LOGIN</button>
 </section>
 
+<!-- ADMIN DASHBOARD -->
 <section id="dashboard" class="card hidden">
-<h2>ADMIN DASHBOARD</h2>
 
-<h3>🎨 WEBSITE CUSTOMIZATION</h3>
-<label>Choose Theme</label>
+<h2>ADMIN DASHBOARD ⚙️</h2>
+
+<hr>
+<h3>🎨 WEBSITE THEME</h3>
+<p>Select your theme:</p>
+
 <select id="themeSelect" onchange="changeTheme(this.value)">
-<option value="red">Red Premium</option>
-<option value="blue">Blue Gaming</option>
-<option value="purple">Purple Neon</option>
-<option value="green">Green Gaming</option>
-<option value="gold">Gold Premium</option>
+<option value="rgb">🌈 RGB Gaming</option>
+<option value="red">🔴 Red Premium</option>
+<option value="blue">🔵 Blue Neon</option>
+<option value="purple">🟣 Purple Neon</option>
+<option value="green">🟢 Green Gaming</option>
+<option value="gold">🟡 Gold Luxury</option>
 </select>
+
 <input id="siteName" placeholder="Website Name">
-<button onclick="saveSettings()">SAVE WEBSITE</button>
+<button onclick="saveSettings()">SAVE WEBSITE DESIGN</button>
 
 <hr>
 <h3>➕ ADD PRODUCT</h3>
@@ -175,51 +254,70 @@ img.preview{width:100%;max-height:220px;object-fit:contain}
 <hr>
 <h3>💳 PAYMENT SETTINGS</h3>
 <input id="upiInput" placeholder="Your UPI ID">
-<button onclick="saveUPI()">SAVE UPI ID</button>
+<button onclick="saveUPI()">SAVE UPI</button>
 
-<h3>📋 ALL ORDERS</h3>
+<hr>
+<h3>📋 ALL CUSTOMER ORDERS</h3>
 <div id="orders"></div>
 
+<hr>
 <h3>👥 REGISTERED USERS</h3>
 <div id="users"></div>
 
-<button onclick="adminLogout()">ADMIN LOGOUT</button>
+<button onclick="adminLogout()">LOGOUT ADMIN</button>
+
 </section>
 
+<footer>
+ZONEPUSHER © 2026
+<p>POWERED BY ZONEPUSHER</p>
+</footer>
+
 <script>
-const $=id=>document.getElementById(id);
-const get=(key,def)=>JSON.parse(localStorage.getItem(key)||JSON.stringify(def));
-const put=(key,val)=>localStorage.setItem(key,JSON.stringify(val));
+
+// DATABASE - DEMO ONLY
+const get=(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
+const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
 let users=get("zp_users",[]);
 let products=get("zp_products",[]);
 let orders=get("zp_orders",[]);
 let settings=get("zp_settings",{
- name:"ZONEPUSHER",theme:"red",upi:"YOUR-UPI-ID@BANK"
+ name:"ZONEPUSHER",
+ theme:"rgb",
+ upi:"YOUR-UPI-ID@BANK"
 });
+
 let cart=[];
 let currentUser=null;
 let isAdmin=false;
 let selectedRating=0;
 let activeOrder=null;
 
+// THEMES
 const themes={
- red:["#ff3030","#090909"],
- blue:["#168cff","#080e19"],
- purple:["#a855ff","#100817"],
- green:["#00c985","#06130e"],
- gold:["#e5ae32","#15100a"]
+ rgb:["#080808","#ff1744"],
+ red:["#090909","#ff3030"],
+ blue:["#07111f","#168cff"],
+ purple:["#100817","#a855ff"],
+ green:["#06130e","#00c985"],
+ gold:["#15100a","#e5ae32"]
 };
 
+// NAVIGATION
 function show(id){
- document.querySelectorAll("body > section").forEach(s=>s.classList.add("hidden"));
- $(id).classList.remove("hidden");
+ document.querySelectorAll("body > section")
+ .forEach(s=>s.classList.add("hidden"));
+
+ document.getElementById(id).classList.remove("hidden");
+
  if(id==="home")renderProducts();
  if(id==="cart")renderCart();
  if(id==="history")renderHistory();
- if(id==="dashboard")renderAdmin();
+ if(id==="dashboard" && isAdmin)renderAdmin();
 }
 
+// SAVE
 function saveAll(){
  put("zp_users",users);
  put("zp_products",products);
@@ -227,46 +325,71 @@ function saveAll(){
  put("zp_settings",settings);
 }
 
+// HTML SAFETY
 function escapeHTML(v){
  return String(v).replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ "&":"&amp;",
+ "<":"&lt;",
+ ">":"&gt;",
+ '"':"&quot;",
+ "'":"&#39;"
  })[c]);
 }
 
+// REGISTER
 function register(){
- let u=$("reguser").value.trim();
- let p=$("regpass").value;
+ let u=document.getElementById("reguser").value.trim();
+ let p=document.getElementById("regpass").value;
+ let c=document.getElementById("regconfirm").value;
+
  if(!u||!p)return alert("Fill all fields");
- if(p!==$("regconfirm").value)return alert("Passwords do not match");
+ if(p!==c)return alert("Password does not match");
+
  if(users.some(x=>x.username.toLowerCase()===u.toLowerCase()))
  return alert("Username already exists!");
+
  users.push({username:u,password:p});
  saveAll();
+
  alert("Registration successful!");
  show("login");
 }
 
+// LOGIN
 function login(){
- let u=$("loginuser").value.trim();
- let p=$("loginpass").value;
- let found=users.find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===p);
+ let u=document.getElementById("loginuser").value.trim();
+ let p=document.getElementById("loginpass").value;
+
+ let found=users.find(x=>
+ x.username.toLowerCase()===u.toLowerCase() &&
+ x.password===p
+ );
+
  if(!found)return alert("Wrong username or password");
+
  currentUser=u;
- alert("Welcome "+u);
+ document.getElementById("welcome").textContent="Welcome "+u;
+ alert("Login successful!");
  show("home");
 }
 
+// LOGOUT
 function logout(){
  currentUser=null;
- alert("Logged out");
+ document.getElementById("welcome").textContent="";
+ alert("Logged out!");
  show("home");
 }
 
+// ADMIN LOGIN
 function adminLogin(){
- if($("adminpass").value==="12341234"){
+ if(document.getElementById("adminpass").value==="12341234"){
  isAdmin=true;
  show("dashboard");
- }else alert("Wrong password");
+ renderAdmin();
+ }else{
+ alert("Wrong admin password!");
+ }
 }
 
 function adminLogout(){
@@ -274,53 +397,82 @@ function adminLogout(){
  show("home");
 }
 
+// ADD PRODUCT
 function addProduct(){
  if(!isAdmin)return;
- let n=$("pname").value.trim();
- let p=Number($("pprice").value);
+
+ let n=document.getElementById("pname").value.trim();
+ let p=Number(document.getElementById("pprice").value);
+
  if(!n||p<=0)return alert("Enter valid product details");
- products.push({id:Date.now(),name:n,price:p});
+
+ products.push({
+ id:Date.now(),
+ name:n,
+ price:p
+ });
+
  saveAll();
- $("pname").value="";
- $("pprice").value="";
+ document.getElementById("pname").value="";
+ document.getElementById("pprice").value="";
  renderAdmin();
+ alert("Product added!");
 }
 
+// DELETE PRODUCT
 function deleteProduct(i){
  if(!isAdmin)return;
- if(!confirm("Delete this product?"))return;
+ if(!confirm("Delete product?"))return;
+
  products.splice(i,1);
  saveAll();
  renderAdmin();
 }
 
+// SHOW PRODUCTS
 function renderProducts(){
- $("products").innerHTML=products.map((p,i)=>`
+ document.getElementById("products").innerHTML=
+ products.map((p,i)=>`
  <div class="product">
  <h3>${escapeHTML(p.name)}</h3>
  <p class="price">₹${p.price}</p>
  <button onclick="addCart(${i})">ADD TO CART</button>
- </div>`).join("")||"No products available yet.";
+ </div>
+ `).join("")||"No products available.";
 }
 
+// ADD TO CART
 function addCart(i){
  if(!products[i])return;
+
  let found=cart.find(x=>x.id===products[i].id);
+
  if(found)found.qty++;
  else cart.push({...products[i],qty:1});
+
  alert("Added to cart!");
 }
 
+// CART TOTAL
+function total(){
+ return cart.reduce((s,p)=>s+p.price*p.qty,0);
+}
+
+// RENDER CART
 function renderCart(){
- $("cartitems").innerHTML=cart.map((p,i)=>`
+ document.getElementById("cartitems").innerHTML=
+ cart.map((p,i)=>`
  <div class="product">
- <b>${escapeHTML(p.name)}</b>
+ <h3>${escapeHTML(p.name)}</h3>
  <p>₹${p.price} × ${p.qty}</p>
- <button onclick="quantity(${i},-1)">−</button>
  <button onclick="quantity(${i},1)">+</button>
+ <button onclick="quantity(${i},-1)">-</button>
  <button onclick="removeCart(${i})">REMOVE</button>
- </div>`).join("")||"Your cart is empty.";
- $("carttotal").textContent="Total: ₹"+total();
+ </div>
+ `).join("")||"Your cart is empty.";
+
+ document.getElementById("carttotal").textContent=
+ "Total: ₹"+total();
 }
 
 function quantity(i,n){
@@ -334,179 +486,254 @@ function removeCart(i){
  renderCart();
 }
 
-function total(){
- return cart.reduce((s,p)=>s+p.price*p.qty,0);
-}
-
+// CHECKOUT
 function showCheckout(){
- if(!currentUser)return alert("Please login first");
- if(!cart.length)return alert("Cart is empty");
+ if(!currentUser)return alert("Login first!");
+ if(!cart.length)return alert("Cart is empty!");
+
  selectedRating=0;
  updateStars();
- $("checkoutTotal").textContent="Total Amount: ₹"+total();
+
+ document.getElementById("checkoutTotal").textContent=
+ "Total Amount: ₹"+total();
+
  show("checkout");
 }
 
+// STAR RATING
 function setRating(n){
  selectedRating=n;
  updateStars();
- $("ratingText").textContent=n+" / 5 Stars";
+ document.getElementById("ratingText").textContent=
+ n+" / 5 Stars";
 }
 
 function updateStars(){
- $("rating").innerHTML=[1,2,3,4,5].map(n=>
- `<span onclick="setRating(${n})">${n<=selectedRating?"★":"☆"}</span>`
+ document.getElementById("rating").innerHTML=
+ [1,2,3,4,5].map(n=>
+ `<span onclick="setRating(${n})">
+ ${n<=selectedRating?"★":"☆"}
+ </span>`
  ).join("");
 }
 
+// CREATE ORDER
 function createPayment(){
- if(!selectedRating)return alert("Please select a star rating");
+ if(!selectedRating)return alert("Select your rating!");
+
  let code="ZP"+Date.now().toString(36).toUpperCase();
+
  let order={
- id:code,user:currentUser,
+ id:code,
+ user:currentUser,
  items:cart.map(x=>({...x})),
- amount:total(),rating:selectedRating,
+ amount:total(),
+ rating:selectedRating,
  status:"Awaiting Payment",
- utr:"",screenshot:"",date:new Date().toLocaleString()
+ utr:"",
+ screenshot:"",
+ date:new Date().toLocaleString()
  };
+
  orders.push(order);
  saveAll();
+
  activeOrder=code;
  cart=[];
- $("paymentCode").textContent=code;
- $("paymentAmount").textContent="Pay ₹"+order.amount;
- $("upiDisplay").textContent=settings.upi;
+
+ document.getElementById("paymentCode").textContent=code;
+ document.getElementById("paymentAmount").textContent=
+ "PAY ₹"+order.amount;
+
+ document.getElementById("upiDisplay").textContent=settings.upi;
+
  show("payment");
 }
 
+// COPY UPI
 function copyUPI(){
- navigator.clipboard?.writeText(settings.upi)
- .then(()=>alert("UPI ID copied!"))
+ if(navigator.clipboard){
+ navigator.clipboard.writeText(settings.upi)
+ .then(()=>alert("UPI copied!"))
  .catch(()=>alert("UPI ID: "+settings.upi));
+ }else{
+ alert("UPI ID: "+settings.upi);
+ }
 }
 
-$("screenshot").addEventListener("change",function(){
+// SCREENSHOT PREVIEW
+document.getElementById("screenshot")
+.addEventListener("change",function(){
+
  let file=this.files[0];
  if(!file)return;
- if(!file.type.startsWith("image/"))return alert("Choose an image");
- if(file.size>1500000)return alert("Screenshot must be below 1.5 MB");
+
+ if(!file.type.startsWith("image/"))
+ return alert("Select an image!");
+
+ if(file.size>1000000)
+ return alert("Image must be below 1 MB!");
+
  let reader=new FileReader();
+
  reader.onload=e=>{
- $("imagePreview").src=e.target.result;
- $("imagePreview").classList.remove("hidden");
+ document.getElementById("imagePreview").src=e.target.result;
+ document.getElementById("imagePreview").classList.remove("hidden");
  };
+
  reader.readAsDataURL(file);
 });
 
+// SUBMIT PAYMENT
 function submitPayment(){
  let o=orders.find(x=>x.id===activeOrder);
- if(!o)return alert("Order not found");
- let utr=$("utr").value.trim();
- let file=$("screenshot").files[0];
- if(!utr||!file)return alert("Enter UTR and upload screenshot");
+ if(!o)return alert("Order not found!");
+
+ let utr=document.getElementById("utr").value.trim();
+ let file=document.getElementById("screenshot").files[0];
+
+ if(!utr||!file)
+ return alert("Enter UTR and upload screenshot!");
 
  let reader=new FileReader();
+
  reader.onload=e=>{
  o.utr=utr;
  o.screenshot=e.target.result;
- o.status="Payment Submitted - Verification Pending";
+ o.status="Payment Verification Pending";
+
  saveAll();
- $("utr").value="";
- $("screenshot").value="";
- $("imagePreview").classList.add("hidden");
- alert("Payment details submitted! Wait for admin verification.");
+
+ document.getElementById("utr").value="";
+ document.getElementById("screenshot").value="";
+ document.getElementById("imagePreview").classList.add("hidden");
+
+ alert("Payment submitted! Wait for admin verification.");
  show("history");
  };
+
  reader.readAsDataURL(file);
 }
 
+// ORDER HISTORY
 function renderHistory(){
  if(!currentUser){
- $("myOrders").innerHTML="Please login to view your orders.";
+ document.getElementById("myOrders").innerHTML="Please login first!";
  return;
  }
+
  let mine=orders.filter(o=>o.user===currentUser);
- $("myOrders").innerHTML=mine.map(o=>`
+
+ document.getElementById("myOrders").innerHTML=
+ mine.map(o=>`
  <div class="order">
- <b>Order: ${escapeHTML(o.id)}</b>
+ <h3>${escapeHTML(o.id)}</h3>
  <p>Amount: ₹${o.amount}</p>
  <p>Rating: ${o.rating} ★</p>
  <p>Status: ${escapeHTML(o.status)}</p>
- <p class="small">${escapeHTML(o.date)}</p>
- </div>`).join("")||"No orders yet.";
+ <p>${escapeHTML(o.date)}</p>
+ </div>
+ `).join("")||"No orders yet.";
 }
 
+// ADMIN ORDER ACTIONS
 function changeOrder(i,status){
  if(!isAdmin)return;
+
  orders[i].status=status;
  saveAll();
  renderAdmin();
 }
 
+// ADMIN DASHBOARD
 function renderAdmin(){
  if(!isAdmin)return;
- $("siteName").value=settings.name;
- $("themeSelect").value=settings.theme;
- $("upiInput").value=settings.upi;
 
- $("orders").innerHTML=orders.map((o,i)=>`
+ document.getElementById("siteName").value=settings.name;
+ document.getElementById("themeSelect").value=settings.theme;
+ document.getElementById("upiInput").value=settings.upi;
+
+ document.getElementById("orders").innerHTML=
+ orders.map((o,i)=>`
  <div class="order">
- <b>Order: ${escapeHTML(o.id)}</b>
- <p>User: ${escapeHTML(o.user)}</p>
+ <h3>ORDER ${escapeHTML(o.id)}</h3>
+ <p>Customer: ${escapeHTML(o.user)}</p>
  <p>Amount: ₹${o.amount}</p>
  <p>Items: ${o.items.map(x=>escapeHTML(x.name)+" × "+x.qty).join(", ")}</p>
  <p>Rating: ${o.rating} ★</p>
  <p>UTR: ${escapeHTML(o.utr||"Not submitted")}</p>
  <p>Status: ${escapeHTML(o.status)}</p>
- ${o.screenshot?`<img class="preview" src="${o.screenshot}" alt="Payment screenshot">`:""}
+
+ ${o.screenshot?
+ `<img class="preview" src="${o.screenshot}" alt="Payment screenshot">`
+ :""}
+
  <button onclick="changeOrder(${i},'Confirmed')">CONFIRM</button>
  <button onclick="changeOrder(${i},'Cancelled')">CANCEL</button>
- </div>`).join("")||"No orders yet.";
+ </div>
+ `).join("")||"No orders yet.";
 
- $("adminProducts").innerHTML=products.map((p,i)=>`
- <div class="product">${escapeHTML(p.name)} - ₹${p.price}
+ document.getElementById("adminProducts").innerHTML=
+ products.map((p,i)=>`
+ <div class="product">
+ ${escapeHTML(p.name)} - ₹${p.price}
  <button onclick="deleteProduct(${i})">DELETE</button>
- </div>`).join("");
+ </div>
+ `).join("");
 
- $("users").innerHTML=users.map(u=>
- `<p>${escapeHTML(u.username)}</p>`).join("");
+ document.getElementById("users").innerHTML=
+ users.map(u=>`<p>${escapeHTML(u.username)}</p>`).join("");
 }
 
-function changeTheme(t){
+// THEME CHANGE
+function changeTheme(name){
  if(!isAdmin)return;
- settings.theme=t;
+ if(!themes[name])return;
+
+ settings.theme=name;
  applyTheme();
 }
 
+// APPLY THEME
 function applyTheme(){
- let colors=themes[settings.theme]||themes.red;
- document.documentElement.style.setProperty("--main",colors[0]);
- document.documentElement.style.setProperty("--bg",colors[1]);
- $("siteName").value=settings.name;
- document.querySelector("header").textContent=settings.name;
+ let t=themes[settings.theme]||themes.rgb;
+
+ document.documentElement.style.setProperty("--bg",t[0]);
+ document.documentElement.style.setProperty("--main",t[1]);
+
+ document.getElementById("heading").textContent=settings.name;
 }
 
+// SAVE SETTINGS
 function saveSettings(){
  if(!isAdmin)return;
- settings.name=$("siteName").value.trim()||"ZONEPUSHER";
- settings.theme=$("themeSelect").value;
+
+ settings.name=document.getElementById("siteName").value.trim()||"ZONEPUSHER";
+ settings.theme=document.getElementById("themeSelect").value;
+
  saveAll();
  applyTheme();
- alert("Website settings saved!");
+
+ alert("Website customization saved!");
 }
 
+// SAVE UPI
 function saveUPI(){
  if(!isAdmin)return;
- let v=$("upiInput").value.trim();
- if(!v)return alert("Enter UPI ID");
+
+ let v=document.getElementById("upiInput").value.trim();
+ if(!v)return alert("Enter UPI ID!");
+
  settings.upi=v;
  saveAll();
- $("upiDisplay").textContent=v;
- alert("UPI ID saved");
+
+ alert("UPI saved!");
 }
 
+// INITIALIZE
 applyTheme();
 renderProducts();
+
 </script>
 </body>
 </html>
