@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,20 +6,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZONEPUSHER</title>
 <style>
+:root{
+ --main:#ff3030;
+ --bg:#090909;
+ --card:#171717;
+ --text:#ffffff;
+}
 *{box-sizing:border-box}
-body{margin:0;background:#090909;color:white;font-family:Arial}
-header{background:#151515;padding:18px;text-align:center;
-color:#ff3030;font-size:25px;font-weight:bold}
-nav{display:flex;justify-content:center;gap:10px;padding:15px;flex-wrap:wrap}
-button{background:#ff3030;color:white;border:0;padding:12px 18px;
-border-radius:7px;font-weight:bold;cursor:pointer}
-input{display:block;width:100%;padding:13px;margin:10px 0;
-background:#222;color:white;border:1px solid #444;border-radius:7px}
-.card{background:#171717;padding:20px;margin:15px auto;
-border-radius:12px;max-width:420px}
-h2{color:#ff3030}
-.hidden{display:none}
-.product{border:1px solid #444;padding:15px;margin:10px 0;border-radius:8px}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Arial,sans-serif;transition:.3s;
+}
+header{
+ padding:22px;text-align:center;background:var(--card);
+ color:var(--main);font-size:27px;font-weight:bold;
+ letter-spacing:2px;
+}
+nav{
+ display:flex;gap:8px;justify-content:center;
+ flex-wrap:wrap;padding:15px;
+}
+button{
+ background:var(--main);color:white;border:0;
+ padding:12px 16px;border-radius:8px;
+ cursor:pointer;font-weight:bold;margin:4px;
+}
+button:hover{filter:brightness(1.2)}
+input,select,textarea{
+ width:100%;padding:13px;margin:8px 0;
+ background:#252525;color:white;
+ border:1px solid #555;border-radius:8px;
+}
+.card{
+ max-width:520px;margin:15px auto;padding:20px;
+ background:var(--card);border-radius:14px;
+ border:1px solid #333;
+}
+h2{color:var(--main)}
+.hidden{display:none!important}
+.product,.order{
+ padding:15px;margin:12px 0;
+ background:#242424;border-radius:10px;
+}
+.price{color:#35e88b;font-weight:bold}
+.small{color:#aaa;font-size:13px}
+.stars{font-size:30px;color:gold;cursor:pointer}
+.stars span{padding:3px}
+.total{font-size:22px;color:#35e88b;font-weight:bold}
+img.preview{width:100%;max-height:220px;object-fit:contain}
 </style>
 </head>
 <body>
@@ -29,7 +64,8 @@ h2{color:#ff3030}
 <button onclick="show('home')">HOME</button>
 <button onclick="show('login')">LOGIN</button>
 <button onclick="show('register')">REGISTER</button>
-<button onclick="show('cart')">CART 🛒</button>
+<button onclick="show('cart')">🛒 CART</button>
+<button onclick="show('history')">MY ORDERS</button>
 <button onclick="show('admin')">ADMIN</button>
 </nav>
 
@@ -40,7 +76,7 @@ h2{color:#ff3030}
 </section>
 
 <section id="register" class="card hidden">
-<h2>Create Account</h2>
+<h2>CREATE ACCOUNT</h2>
 <input id="reguser" placeholder="Username">
 <input id="regpass" type="password" placeholder="Password">
 <input id="regconfirm" type="password" placeholder="Confirm Password">
@@ -52,150 +88,424 @@ h2{color:#ff3030}
 <input id="loginuser" placeholder="Username">
 <input id="loginpass" type="password" placeholder="Password">
 <button onclick="login()">LOGIN</button>
-</section>
-
-<section id="admin" class="card hidden">
-<h2>ADMIN LOGIN</h2>
-<input id="adminpass" type="password" placeholder="Admin Password">
-<button onclick="adminLogin()">LOGIN AS ADMIN</button>
-</section>
-
-<section id="dashboard" class="card hidden">
-<h2>ADMIN DASHBOARD</h2>
-<input id="pname" placeholder="Product Name">
-<input id="pprice" type="number" placeholder="Product Price">
-<button onclick="addProduct()">ADD PRODUCT</button>
-<h3>ORDERS</h3>
-<div id="orders"></div>
-<h3>REGISTERED USERS</h3>
-<div id="users"></div>
+<button onclick="logout()">LOGOUT</button>
 </section>
 
 <section id="cart" class="card hidden">
 <h2>YOUR CART</h2>
 <div id="cartitems"></div>
-<button onclick="checkout()">PLACE ORDER</button>
+<p class="total" id="carttotal">Total: ₹0</p>
+<button onclick="showCheckout()">PROCEED TO CHECKOUT</button>
+</section>
+
+<section id="checkout" class="card hidden">
+<h2>ORDER DETAILS</h2>
+<p>Rate your shopping experience:</p>
+<div class="stars" id="rating">
+<span onclick="setRating(1)">☆</span>
+<span onclick="setRating(2)">☆</span>
+<span onclick="setRating(3)">☆</span>
+<span onclick="setRating(4)">☆</span>
+<span onclick="setRating(5)">☆</span>
+</div>
+<p id="ratingText">Select your rating</p>
+<p class="total" id="checkoutTotal"></p>
+<button onclick="createPayment()">CONTINUE TO PAYMENT</button>
+</section>
+
+<section id="payment" class="card hidden">
+<h2>PAYMENT PAGE</h2>
+<p>Order Payment Code:</p>
+<h2 id="paymentCode"></h2>
+<p class="total" id="paymentAmount"></p>
+
+<p>Pay using the UPI details below:</p>
+<div class="product">
+<p>UPI ID: <b id="upiDisplay">YOUR-UPI-ID@BANK</b></p>
+<p class="small">Admin must configure the correct UPI ID and payment QR before accepting payments.</p>
+<button onclick="copyUPI()">COPY UPI ID</button>
+</div>
+
+<p>After payment, enter your transaction reference:</p>
+<input id="utr" placeholder="Enter UPI Transaction ID / UTR">
+
+<p>Upload Payment Screenshot:</p>
+<input type="file" id="screenshot" accept="image/*">
+<img id="imagePreview" class="preview hidden">
+
+<button onclick="submitPayment()">SUBMIT PAYMENT</button>
+<p class="small">Your order will remain pending until admin verifies it.</p>
+</section>
+
+<section id="history" class="card hidden">
+<h2>MY ORDER HISTORY</h2>
+<div id="myOrders"></div>
+</section>
+
+<section id="admin" class="card hidden">
+<h2>ADMIN LOGIN</h2>
+<input id="adminpass" type="password" placeholder="Admin Password">
+<button onclick="adminLogin()">LOGIN</button>
+</section>
+
+<section id="dashboard" class="card hidden">
+<h2>ADMIN DASHBOARD</h2>
+
+<h3>🎨 WEBSITE CUSTOMIZATION</h3>
+<label>Choose Theme</label>
+<select id="themeSelect" onchange="changeTheme(this.value)">
+<option value="red">Red Premium</option>
+<option value="blue">Blue Gaming</option>
+<option value="purple">Purple Neon</option>
+<option value="green">Green Gaming</option>
+<option value="gold">Gold Premium</option>
+</select>
+<input id="siteName" placeholder="Website Name">
+<button onclick="saveSettings()">SAVE WEBSITE</button>
+
+<hr>
+<h3>➕ ADD PRODUCT</h3>
+<input id="pname" placeholder="Product Name">
+<input id="pprice" type="number" placeholder="Product Price">
+<button onclick="addProduct()">ADD PRODUCT</button>
+
+<h3>📦 MANAGE PRODUCTS</h3>
+<div id="adminProducts"></div>
+
+<hr>
+<h3>💳 PAYMENT SETTINGS</h3>
+<input id="upiInput" placeholder="Your UPI ID">
+<button onclick="saveUPI()">SAVE UPI ID</button>
+
+<h3>📋 ALL ORDERS</h3>
+<div id="orders"></div>
+
+<h3>👥 REGISTERED USERS</h3>
+<div id="users"></div>
+
+<button onclick="adminLogout()">ADMIN LOGOUT</button>
 </section>
 
 <script>
-let users=JSON.parse(localStorage.getItem("users")||"[]");
-let products=JSON.parse(localStorage.getItem("products")||"[]");
-let cart=[];
-let orders=JSON.parse(localStorage.getItem("orders")||"[]");
-let currentUser=null;
+const $=id=>document.getElementById(id);
+const get=(key,def)=>JSON.parse(localStorage.getItem(key)||JSON.stringify(def));
+const put=(key,val)=>localStorage.setItem(key,JSON.stringify(val));
 
-function save(){
-localStorage.setItem("users",JSON.stringify(users));
-localStorage.setItem("products",JSON.stringify(products));
-localStorage.setItem("orders",JSON.stringify(orders));
-}
+let users=get("zp_users",[]);
+let products=get("zp_products",[]);
+let orders=get("zp_orders",[]);
+let settings=get("zp_settings",{
+ name:"ZONEPUSHER",theme:"red",upi:"YOUR-UPI-ID@BANK"
+});
+let cart=[];
+let currentUser=null;
+let isAdmin=false;
+let selectedRating=0;
+let activeOrder=null;
+
+const themes={
+ red:["#ff3030","#090909"],
+ blue:["#168cff","#080e19"],
+ purple:["#a855ff","#100817"],
+ green:["#00c985","#06130e"],
+ gold:["#e5ae32","#15100a"]
+};
 
 function show(id){
-document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
-document.getElementById(id).classList.remove("hidden");
-if(id==="home")renderProducts();
-if(id==="cart")renderCart();
+ document.querySelectorAll("body > section").forEach(s=>s.classList.add("hidden"));
+ $(id).classList.remove("hidden");
+ if(id==="home")renderProducts();
+ if(id==="cart")renderCart();
+ if(id==="history")renderHistory();
+ if(id==="dashboard")renderAdmin();
+}
+
+function saveAll(){
+ put("zp_users",users);
+ put("zp_products",products);
+ put("zp_orders",orders);
+ put("zp_settings",settings);
+}
+
+function escapeHTML(v){
+ return String(v).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ })[c]);
 }
 
 function register(){
-let u=reguser.value.trim(),p=regpass.value,c=regconfirm.value;
-if(!u||!p)return alert("Fill all fields");
-if(p!==c)return alert("Passwords do not match");
-if(users.some(x=>x.username.toLowerCase()===u.toLowerCase()))
-return alert("Username already exists!");
-users.push({username:u,password:p});
-save();
-alert("Registration successful!");
-show("login");
+ let u=$("reguser").value.trim();
+ let p=$("regpass").value;
+ if(!u||!p)return alert("Fill all fields");
+ if(p!==$("regconfirm").value)return alert("Passwords do not match");
+ if(users.some(x=>x.username.toLowerCase()===u.toLowerCase()))
+ return alert("Username already exists!");
+ users.push({username:u,password:p});
+ saveAll();
+ alert("Registration successful!");
+ show("login");
 }
 
 function login(){
-let u=loginuser.value.trim(),p=loginpass.value;
-let found=users.find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===p);
-if(!found)return alert("Wrong username or password");
-currentUser=u;
-alert("Welcome "+u);
-show("home");
+ let u=$("loginuser").value.trim();
+ let p=$("loginpass").value;
+ let found=users.find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===p);
+ if(!found)return alert("Wrong username or password");
+ currentUser=u;
+ alert("Welcome "+u);
+ show("home");
+}
+
+function logout(){
+ currentUser=null;
+ alert("Logged out");
+ show("home");
 }
 
 function adminLogin(){
-if(adminpass.value==="12341234"){
-show("dashboard");
-renderAdmin();
-}else alert("Wrong Admin Password");
+ if($("adminpass").value==="12341234"){
+ isAdmin=true;
+ show("dashboard");
+ }else alert("Wrong password");
+}
+
+function adminLogout(){
+ isAdmin=false;
+ show("home");
 }
 
 function addProduct(){
-let n=pname.value.trim(),p=Number(pprice.value);
-if(!n||p<=0)return alert("Enter valid details");
-products.push({name:n,price:p});
-save();
-pname.value=pprice.value="";
-renderAdmin();
-alert("Product added");
+ if(!isAdmin)return;
+ let n=$("pname").value.trim();
+ let p=Number($("pprice").value);
+ if(!n||p<=0)return alert("Enter valid product details");
+ products.push({id:Date.now(),name:n,price:p});
+ saveAll();
+ $("pname").value="";
+ $("pprice").value="";
+ renderAdmin();
+}
+
+function deleteProduct(i){
+ if(!isAdmin)return;
+ if(!confirm("Delete this product?"))return;
+ products.splice(i,1);
+ saveAll();
+ renderAdmin();
 }
 
 function renderProducts(){
-productsDiv=document.getElementById("products");
-productsDiv.innerHTML="";
-products.forEach((p,i)=>{
-productsDiv.innerHTML+=`
-<div class="product">
-<h3>${escapeHTML(p.name)}</h3>
-<p>₹${p.price}</p>
-<button onclick="addCart(${i})">ADD TO CART</button>
-</div>`;
-});
+ $("products").innerHTML=products.map((p,i)=>`
+ <div class="product">
+ <h3>${escapeHTML(p.name)}</h3>
+ <p class="price">₹${p.price}</p>
+ <button onclick="addCart(${i})">ADD TO CART</button>
+ </div>`).join("")||"No products available yet.";
 }
 
 function addCart(i){
-cart.push(products[i]);
-alert("Added to cart");
+ if(!products[i])return;
+ let found=cart.find(x=>x.id===products[i].id);
+ if(found)found.qty++;
+ else cart.push({...products[i],qty:1});
+ alert("Added to cart!");
 }
 
 function renderCart(){
-cartitems.innerHTML=cart.map((p,i)=>`
-<div class="product">${escapeHTML(p.name)} - ₹${p.price}
-<button onclick="cart.splice(${i},1);renderCart()">REMOVE</button>
-</div>`).join("");
+ $("cartitems").innerHTML=cart.map((p,i)=>`
+ <div class="product">
+ <b>${escapeHTML(p.name)}</b>
+ <p>₹${p.price} × ${p.qty}</p>
+ <button onclick="quantity(${i},-1)">−</button>
+ <button onclick="quantity(${i},1)">+</button>
+ <button onclick="removeCart(${i})">REMOVE</button>
+ </div>`).join("")||"Your cart is empty.";
+ $("carttotal").textContent="Total: ₹"+total();
 }
 
-function checkout(){
-if(!currentUser)return alert("Please login first");
-if(!cart.length)return alert("Cart is empty");
-let code="ZP"+Date.now();
-orders.push({user:currentUser,items:[...cart],code:code,status:"Pending",message:""});
-cart=[];
-save();
-alert("Order created! Your code: "+code);
-show("home");
+function quantity(i,n){
+ cart[i].qty+=n;
+ if(cart[i].qty<=0)cart.splice(i,1);
+ renderCart();
 }
 
-function renderAdmin(){
-ordersDiv=document.getElementById("orders");
-ordersDiv.innerHTML=orders.map((o,i)=>`
-<div class="product">
-User: ${escapeHTML(o.user)}<br>
-Order: ${escapeHTML(o.code)}<br>
-Status: ${escapeHTML(o.status)}<br>
-<button onclick="changeOrder(${i},'Confirmed')">CONFIRM</button>
-<button onclick="changeOrder(${i},'Cancelled')">CANCEL</button>
-</div>`).join("");
-usersDiv.innerHTML=users.map(u=>`<p>${escapeHTML(u.username)}</p>`).join("");
+function removeCart(i){
+ cart.splice(i,1);
+ renderCart();
+}
+
+function total(){
+ return cart.reduce((s,p)=>s+p.price*p.qty,0);
+}
+
+function showCheckout(){
+ if(!currentUser)return alert("Please login first");
+ if(!cart.length)return alert("Cart is empty");
+ selectedRating=0;
+ updateStars();
+ $("checkoutTotal").textContent="Total Amount: ₹"+total();
+ show("checkout");
+}
+
+function setRating(n){
+ selectedRating=n;
+ updateStars();
+ $("ratingText").textContent=n+" / 5 Stars";
+}
+
+function updateStars(){
+ $("rating").innerHTML=[1,2,3,4,5].map(n=>
+ `<span onclick="setRating(${n})">${n<=selectedRating?"★":"☆"}</span>`
+ ).join("");
+}
+
+function createPayment(){
+ if(!selectedRating)return alert("Please select a star rating");
+ let code="ZP"+Date.now().toString(36).toUpperCase();
+ let order={
+ id:code,user:currentUser,
+ items:cart.map(x=>({...x})),
+ amount:total(),rating:selectedRating,
+ status:"Awaiting Payment",
+ utr:"",screenshot:"",date:new Date().toLocaleString()
+ };
+ orders.push(order);
+ saveAll();
+ activeOrder=code;
+ cart=[];
+ $("paymentCode").textContent=code;
+ $("paymentAmount").textContent="Pay ₹"+order.amount;
+ $("upiDisplay").textContent=settings.upi;
+ show("payment");
+}
+
+function copyUPI(){
+ navigator.clipboard?.writeText(settings.upi)
+ .then(()=>alert("UPI ID copied!"))
+ .catch(()=>alert("UPI ID: "+settings.upi));
+}
+
+$("screenshot").addEventListener("change",function(){
+ let file=this.files[0];
+ if(!file)return;
+ if(!file.type.startsWith("image/"))return alert("Choose an image");
+ if(file.size>1500000)return alert("Screenshot must be below 1.5 MB");
+ let reader=new FileReader();
+ reader.onload=e=>{
+ $("imagePreview").src=e.target.result;
+ $("imagePreview").classList.remove("hidden");
+ };
+ reader.readAsDataURL(file);
+});
+
+function submitPayment(){
+ let o=orders.find(x=>x.id===activeOrder);
+ if(!o)return alert("Order not found");
+ let utr=$("utr").value.trim();
+ let file=$("screenshot").files[0];
+ if(!utr||!file)return alert("Enter UTR and upload screenshot");
+
+ let reader=new FileReader();
+ reader.onload=e=>{
+ o.utr=utr;
+ o.screenshot=e.target.result;
+ o.status="Payment Submitted - Verification Pending";
+ saveAll();
+ $("utr").value="";
+ $("screenshot").value="";
+ $("imagePreview").classList.add("hidden");
+ alert("Payment details submitted! Wait for admin verification.");
+ show("history");
+ };
+ reader.readAsDataURL(file);
+}
+
+function renderHistory(){
+ if(!currentUser){
+ $("myOrders").innerHTML="Please login to view your orders.";
+ return;
+ }
+ let mine=orders.filter(o=>o.user===currentUser);
+ $("myOrders").innerHTML=mine.map(o=>`
+ <div class="order">
+ <b>Order: ${escapeHTML(o.id)}</b>
+ <p>Amount: ₹${o.amount}</p>
+ <p>Rating: ${o.rating} ★</p>
+ <p>Status: ${escapeHTML(o.status)}</p>
+ <p class="small">${escapeHTML(o.date)}</p>
+ </div>`).join("")||"No orders yet.";
 }
 
 function changeOrder(i,status){
-orders[i].status=status;
-save();
-renderAdmin();
+ if(!isAdmin)return;
+ orders[i].status=status;
+ saveAll();
+ renderAdmin();
 }
 
-function escapeHTML(s){
-return String(s).replace(/[&<>"']/g,c=>({
-"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-})[c]);
+function renderAdmin(){
+ if(!isAdmin)return;
+ $("siteName").value=settings.name;
+ $("themeSelect").value=settings.theme;
+ $("upiInput").value=settings.upi;
+
+ $("orders").innerHTML=orders.map((o,i)=>`
+ <div class="order">
+ <b>Order: ${escapeHTML(o.id)}</b>
+ <p>User: ${escapeHTML(o.user)}</p>
+ <p>Amount: ₹${o.amount}</p>
+ <p>Items: ${o.items.map(x=>escapeHTML(x.name)+" × "+x.qty).join(", ")}</p>
+ <p>Rating: ${o.rating} ★</p>
+ <p>UTR: ${escapeHTML(o.utr||"Not submitted")}</p>
+ <p>Status: ${escapeHTML(o.status)}</p>
+ ${o.screenshot?`<img class="preview" src="${o.screenshot}" alt="Payment screenshot">`:""}
+ <button onclick="changeOrder(${i},'Confirmed')">CONFIRM</button>
+ <button onclick="changeOrder(${i},'Cancelled')">CANCEL</button>
+ </div>`).join("")||"No orders yet.";
+
+ $("adminProducts").innerHTML=products.map((p,i)=>`
+ <div class="product">${escapeHTML(p.name)} - ₹${p.price}
+ <button onclick="deleteProduct(${i})">DELETE</button>
+ </div>`).join("");
+
+ $("users").innerHTML=users.map(u=>
+ `<p>${escapeHTML(u.username)}</p>`).join("");
 }
 
+function changeTheme(t){
+ if(!isAdmin)return;
+ settings.theme=t;
+ applyTheme();
+}
+
+function applyTheme(){
+ let colors=themes[settings.theme]||themes.red;
+ document.documentElement.style.setProperty("--main",colors[0]);
+ document.documentElement.style.setProperty("--bg",colors[1]);
+ $("siteName").value=settings.name;
+ document.querySelector("header").textContent=settings.name;
+}
+
+function saveSettings(){
+ if(!isAdmin)return;
+ settings.name=$("siteName").value.trim()||"ZONEPUSHER";
+ settings.theme=$("themeSelect").value;
+ saveAll();
+ applyTheme();
+ alert("Website settings saved!");
+}
+
+function saveUPI(){
+ if(!isAdmin)return;
+ let v=$("upiInput").value.trim();
+ if(!v)return alert("Enter UPI ID");
+ settings.upi=v;
+ saveAll();
+ $("upiDisplay").textContent=v;
+ alert("UPI ID saved");
+}
+
+applyTheme();
 renderProducts();
 </script>
 </body>
