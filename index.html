@@ -83,29 +83,33 @@ hr{border:0;border-top:1px solid #444;margin:22px 0}
 .danger{background:linear-gradient(120deg,#b91c1c,#ff1744)}
 footer{text-align:center;color:#888;padding:25px}
 
-/* QR CODE */
-.qr-box{
+/* PAYMENT IMAGE */
+.payment-image-box{
  background:#222230;
  border:1px solid #a855ff;
  border-radius:15px;
- padding:20px;
+ padding:18px;
  margin:15px 0;
  text-align:center;
 }
-.qr-image{
- width:230px;
- height:230px;
- max-width:100%;
+.payment-image{
+ width:100%;
+ max-width:350px;
+ max-height:400px;
  object-fit:contain;
- background:white;
- padding:8px;
- border-radius:12px;
  display:block;
  margin:15px auto;
+ border-radius:12px;
 }
-.qr-message{
- color:#aaa;
- font-size:13px;
+.image-preview{
+ width:100%;
+ max-width:300px;
+ max-height:300px;
+ object-fit:contain;
+ display:block;
+ margin:15px auto;
+ border-radius:12px;
+ background:#fff;
 }
 
 /* PREMIUM POPUP */
@@ -216,10 +220,9 @@ I accept the refund policy.
 <h2 id="paymentCode"></h2>
 <p class="total" id="paymentAmount"></p>
 
-<div class="qr-box">
-<h3>SCAN QR CODE TO PAY</h3>
-<img id="paymentQR" class="qr-image" alt="Payment QR Code">
-<p class="qr-message">Scan the QR Code using your UPI payment app.</p>
+<div class="payment-image-box">
+<h3>PAYMENT IMAGE</h3>
+<img id="paymentImage" class="payment-image" alt="Payment Image">
 </div>
 
 <input id="utr" placeholder="Enter UPI Transaction ID / UTR">
@@ -268,11 +271,14 @@ I accept the refund policy.
 
 <hr>
 
-<h3>💳 PAYMENT QR SETTINGS</h3>
-<p class="small">Paste your QR Code image direct link below.</p>
+<h3>🖼️ PAYMENT IMAGE SETTINGS</h3>
+<p class="small">Select an image from your phone gallery.</p>
 
-<input id="qrInput" placeholder="Enter QR Image Link">
-<button onclick="saveQR()">SAVE QR CODE</button>
+<input type="file" id="paymentImageInput" accept="image/*">
+
+<img id="adminImagePreview" class="image-preview hidden">
+
+<button onclick="savePaymentImage()">SAVE IMAGE</button>
 
 <hr>
 
@@ -302,7 +308,7 @@ ZONEPUSHER © 2026
 
 <script>
 
-// DEMO STORAGE
+// STORAGE
 const $=id=>document.getElementById(id);
 
 const get=(k,d)=>JSON.parse(
@@ -318,7 +324,7 @@ let orders=get("zp_orders",[]);
 let settings={
  name:"ZONEPUSHER",
  theme:"rgb",
- qr:"",
+ paymentImage:"",
  ...get("zp_settings",{})
 };
 
@@ -327,12 +333,13 @@ let isAdmin=false;
 let cart=[];
 let selectedRating=0;
 let activeOrder=null;
+let selectedPaymentImage="";
 
 // ADMIN DEMO CREDENTIALS
 const ADMIN_USERNAME="Admin";
 const ADMIN_PASSWORD="9570074883";
 
-// PREMIUM POPUP
+// POPUP
 function notice(message,title="ZONEPUSHER"){
  $("popupTitle").textContent=title;
  $("popupMessage").textContent=message;
@@ -345,6 +352,7 @@ function closePopup(){
 
 // NAVIGATION
 function show(id){
+
  document.querySelectorAll("body > section")
  .forEach(s=>s.classList.add("hidden"));
 
@@ -588,8 +596,8 @@ function createOrder(){
  if(!$("acceptPolicy").checked)
  return notice("Please accept the refund policy.");
 
- if(!settings.qr)
- return notice("Payment QR Code is not configured. Contact admin.");
+ if(!settings.paymentImage)
+ return notice("Payment image is not configured. Contact admin.");
 
  let code="ZP"+Date.now().toString(36).toUpperCase();
 
@@ -616,8 +624,7 @@ function createOrder(){
 
  $("paymentCode").textContent=code;
  $("paymentAmount").textContent="PAY ₹"+order.amount;
-
- $("paymentQR").src=settings.qr;
+ $("paymentImage").src=settings.paymentImage;
 
  show("payment");
 }
@@ -761,7 +768,13 @@ function renderAdmin(){
 
  $("siteName").value=settings.name;
  $("themeSelect").value=settings.theme;
- $("qrInput").value=settings.qr||"";
+
+ if(settings.paymentImage){
+ $("adminImagePreview").src=settings.paymentImage;
+ $("adminImagePreview").classList.remove("hidden");
+ }else{
+ $("adminImagePreview").classList.add("hidden");
+ }
 
  $("orders").innerHTML=orders.map((o,i)=>`
  <div class="order">
@@ -817,6 +830,81 @@ function deleteProduct(i){
  renderAdmin();
 }
 
+// PAYMENT IMAGE UPLOAD
+$("paymentImageInput").addEventListener("change",function(){
+
+ let file=this.files[0];
+ if(!file)return;
+
+ if(!file.type.startsWith("image/"))
+ return notice("Please select an image.");
+
+ // Keep image size manageable for browser storage
+ if(file.size>5*1024*1024)
+ return notice("Please select an image below 5 MB.");
+
+ let reader=new FileReader();
+
+ reader.onload=e=>{
+
+ let img=new Image();
+
+ img.onload=()=>{
+
+ let canvas=document.createElement("canvas");
+ let max=1000;
+
+ let scale=Math.min(1,max/Math.max(img.width,img.height));
+
+ canvas.width=Math.round(img.width*scale);
+ canvas.height=Math.round(img.height*scale);
+
+ let ctx=canvas.getContext("2d");
+ ctx.drawImage(img,0,0,canvas.width,canvas.height);
+
+ selectedPaymentImage=canvas.toDataURL("image/jpeg",0.75);
+
+ $("adminImagePreview").src=selectedPaymentImage;
+ $("adminImagePreview").classList.remove("hidden");
+
+ };
+
+ img.onerror=()=>notice("Could not read this image.");
+
+ img.src=e.target.result;
+
+ };
+
+ reader.readAsDataURL(file);
+});
+
+// SAVE PAYMENT IMAGE
+function savePaymentImage(){
+
+ if(!isAdmin)return;
+
+ if(!selectedPaymentImage)
+ return notice("Please select an image first.");
+
+ try{
+
+ settings.paymentImage=selectedPaymentImage;
+
+ saveAll();
+
+ selectedPaymentImage="";
+
+ $("paymentImageInput").value="";
+
+ notice("Payment image saved successfully!");
+
+ }catch(e){
+
+ notice("Image storage is full. Please select a smaller image.");
+
+ }
+}
+
 // THEMES
 const themes={
  rgb:["#08080d","#ff1744"],
@@ -857,26 +945,6 @@ function saveSettings(){
  applyTheme();
 
  notice("Website design saved.");
-}
-
-// SAVE QR CODE
-function saveQR(){
-
- if(!isAdmin)return;
-
- let v=$("qrInput").value.trim();
-
- if(!v)
- return notice("Enter QR image link.");
-
- if(!/^https?:\/\//i.test(v))
- return notice("Please enter a valid image link.");
-
- settings.qr=v;
-
- saveAll();
-
- notice("Payment QR Code saved successfully!");
 }
 
 // INITIALIZE
