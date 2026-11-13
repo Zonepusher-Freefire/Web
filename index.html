@@ -83,6 +83,31 @@ hr{border:0;border-top:1px solid #444;margin:22px 0}
 .danger{background:linear-gradient(120deg,#b91c1c,#ff1744)}
 footer{text-align:center;color:#888;padding:25px}
 
+/* QR CODE */
+.qr-box{
+ background:#222230;
+ border:1px solid #a855ff;
+ border-radius:15px;
+ padding:20px;
+ margin:15px 0;
+ text-align:center;
+}
+.qr-image{
+ width:230px;
+ height:230px;
+ max-width:100%;
+ object-fit:contain;
+ background:white;
+ padding:8px;
+ border-radius:12px;
+ display:block;
+ margin:15px auto;
+}
+.qr-message{
+ color:#aaa;
+ font-size:13px;
+}
+
 /* PREMIUM POPUP */
 #popup{
  position:fixed;inset:0;background:#000c;
@@ -186,20 +211,23 @@ I accept the refund policy.
 <!-- PAYMENT -->
 <section id="payment" class="card hidden">
 <h2>SECURE PAYMENT CENTER</h2>
+
 <p>Your unique order code:</p>
 <h2 id="paymentCode"></h2>
 <p class="total" id="paymentAmount"></p>
 
-<div class="order">
-<h3>UPI PAYMENT</h3>
-<p id="upiDisplay">Not configured</p>
-<button onclick="copyUPI()">COPY UPI ID</button>
+<div class="qr-box">
+<h3>SCAN QR CODE TO PAY</h3>
+<img id="paymentQR" class="qr-image" alt="Payment QR Code">
+<p class="qr-message">Scan the QR Code using your UPI payment app.</p>
 </div>
 
 <input id="utr" placeholder="Enter UPI Transaction ID / UTR">
+
 <p>Upload payment screenshot:</p>
 <input type="file" id="screenshot" accept="image/*">
 <img id="preview" class="preview hidden">
+
 <button onclick="submitPayment()">SUBMIT PAYMENT</button>
 </section>
 
@@ -215,6 +243,7 @@ I accept the refund policy.
 <h2>ADMIN CONTROL CENTER ⚙️</h2>
 
 <h3>🎨 WEBSITE CUSTOMIZATION</h3>
+
 <select id="themeSelect" onchange="changeTheme(this.value)">
 <option value="rgb">RGB GAMING</option>
 <option value="red">RED PREMIUM</option>
@@ -223,10 +252,12 @@ I accept the refund policy.
 <option value="green">GREEN GAMING</option>
 <option value="gold">GOLD LUXURY</option>
 </select>
+
 <input id="siteName" placeholder="Website Name">
 <button onclick="saveSettings()">SAVE DESIGN</button>
 
 <hr>
+
 <h3>➕ ADD PRODUCT</h3>
 <input id="pname" placeholder="Product Name">
 <input id="pprice" type="number" placeholder="Price">
@@ -236,15 +267,20 @@ I accept the refund policy.
 <div id="adminProducts"></div>
 
 <hr>
-<h3>💳 PAYMENT SETTINGS</h3>
-<input id="upiInput" placeholder="UPI ID">
-<button onclick="saveUPI()">SAVE UPI</button>
+
+<h3>💳 PAYMENT QR SETTINGS</h3>
+<p class="small">Paste your QR Code image direct link below.</p>
+
+<input id="qrInput" placeholder="Enter QR Image Link">
+<button onclick="saveQR()">SAVE QR CODE</button>
 
 <hr>
+
 <h3>📦 ALL ORDERS</h3>
 <div id="orders"></div>
 
 <hr>
+
 <h3>👥 USER MANAGEMENT</h3>
 <div id="users"></div>
 
@@ -268,15 +304,23 @@ ZONEPUSHER © 2026
 
 // DEMO STORAGE
 const $=id=>document.getElementById(id);
-const get=(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
+
+const get=(k,d)=>JSON.parse(
+ localStorage.getItem(k)||JSON.stringify(d)
+);
+
 const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
 let users=get("zp_users",[]);
 let products=get("zp_products",[]);
 let orders=get("zp_orders",[]);
-let settings=get("zp_settings",{
- name:"ZONEPUSHER",theme:"rgb",upi:"YOUR-UPI-ID@BANK"
-});
+
+let settings={
+ name:"ZONEPUSHER",
+ theme:"rgb",
+ qr:"",
+ ...get("zp_settings",{})
+};
 
 let currentUser=null;
 let isAdmin=false;
@@ -294,6 +338,7 @@ function notice(message,title="ZONEPUSHER"){
  $("popupMessage").textContent=message;
  $("popup").style.display="flex";
 }
+
 function closePopup(){
  $("popup").style.display="none";
 }
@@ -302,6 +347,7 @@ function closePopup(){
 function show(id){
  document.querySelectorAll("body > section")
  .forEach(s=>s.classList.add("hidden"));
+
  $(id).classList.remove("hidden");
 
  if(id==="home")renderProducts();
@@ -310,10 +356,14 @@ function show(id){
  if(id==="dashboard"&&isAdmin)renderAdmin();
 }
 
+// SAFE TEXT
 function safe(v){
  return String(v).replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",
- '"':"&quot;","'":"&#39;"
+ "&":"&amp;",
+ "<":"&lt;",
+ ">":"&gt;",
+ '"':"&quot;",
+ "'":"&#39;"
  })[c]);
 }
 
@@ -326,46 +376,67 @@ function saveAll(){
 
 // REGISTER
 function register(){
+
  let u=$("reguser").value.trim();
  let p=$("regpass").value;
 
  if(!u||!p)return notice("Please fill all fields.");
- if(u.toLowerCase()==="admin")return notice("This username is reserved.");
- if(p!==$("regconfirm").value)return notice("Passwords do not match.");
+
+ if(u.toLowerCase()==="admin")
+ return notice("This username is reserved.");
+
+ if(p!==$("regconfirm").value)
+ return notice("Passwords do not match.");
+
  if(users.some(x=>x.username.toLowerCase()===u.toLowerCase()))
  return notice("Username already exists.");
 
- users.push({username:u,password:p,banned:false});
+ users.push({
+ username:u,
+ password:p,
+ banned:false
+ });
+
  saveAll();
 
  notice("Account created successfully!");
  show("login");
 }
 
-// LOGIN - USER AND ADMIN
+// LOGIN
 function login(){
+
  let u=$("loginuser").value.trim();
  let p=$("loginpass").value;
 
  if(u===ADMIN_USERNAME && p===ADMIN_PASSWORD){
+
  currentUser=null;
  isAdmin=true;
+
  $("loginpass").value="";
+
  show("dashboard");
  renderAdmin();
+
  return;
  }
 
  let user=users.find(x=>
- x.username.toLowerCase()===u.toLowerCase()&&x.password===p
+ x.username.toLowerCase()===u.toLowerCase()&&
+ x.password===p
  );
 
  if(!user)return notice("Wrong username or password.");
- if(user.banned)return notice("Your account is banned. Contact admin.");
+
+ if(user.banned)
+ return notice("Your account is banned. Contact admin.");
 
  currentUser=u;
  isAdmin=false;
+
  $("welcome").textContent="Welcome, "+u;
+
  notice("Login successful!");
  show("home");
 }
@@ -385,35 +456,48 @@ function userLogout(){
 
 // PRODUCTS
 function addProduct(){
+
  if(!isAdmin)return;
 
  let n=$("pname").value.trim();
  let p=Number($("pprice").value);
 
- if(!n||p<=0)return notice("Enter valid product details.");
+ if(!n||p<=0)
+ return notice("Enter valid product details.");
 
- products.push({id:Date.now(),name:n,price:p});
+ products.push({
+ id:Date.now(),
+ name:n,
+ price:p
+ });
+
  saveAll();
  renderAdmin();
+
  $("pname").value="";
  $("pprice").value="";
+
  notice("Product added.");
 }
 
 function renderProducts(){
+
  $("products").innerHTML=products.map((p,i)=>`
  <div class="product">
  <h3>${safe(p.name)}</h3>
  <p class="price">₹${p.price}</p>
  <button onclick="addCart(${i})">ADD TO CART</button>
- </div>`).join("")||"No products available.";
+ </div>
+ `).join("")||"No products available.";
 }
 
 function addCart(i){
+
  let p=products[i];
  if(!p)return;
 
  let found=cart.find(x=>x.id===p.id);
+
  if(found)found.qty++;
  else cart.push({...p,qty:1});
 
@@ -425,6 +509,7 @@ function total(){
 }
 
 function renderCart(){
+
  $("cartitems").innerHTML=cart.map((p,i)=>`
  <div class="product">
  <b>${safe(p.name)}</b>
@@ -432,14 +517,19 @@ function renderCart(){
  <button onclick="quantity(${i},1)">+</button>
  <button onclick="quantity(${i},-1)">-</button>
  <button onclick="removeCart(${i})">REMOVE</button>
- </div>`).join("")||"Your cart is empty.";
+ </div>
+ `).join("")||"Your cart is empty.";
 
  $("carttotal").textContent="Total ₹"+total();
 }
 
 function quantity(i,n){
+
  cart[i].qty+=n;
- if(cart[i].qty<=0)cart.splice(i,1);
+
+ if(cart[i].qty<=0)
+ cart.splice(i,1);
+
  renderCart();
 }
 
@@ -450,35 +540,56 @@ function removeCart(i){
 
 // CHECKOUT
 function checkout(){
- if(!currentUser)return notice("Please login first.");
- if(!cart.length)return notice("Your cart is empty.");
+
+ if(!currentUser)
+ return notice("Please login first.");
+
+ if(!cart.length)
+ return notice("Your cart is empty.");
 
  selectedRating=0;
  updateStars();
+
  $("acceptPolicy").checked=false;
  $("checkoutTotal").textContent="Total ₹"+total();
+
  show("checkout");
 }
 
 // STAR RATING
 function setRating(n){
+
  selectedRating=n;
  updateStars();
+
  $("ratingText").textContent=n+" / 5 Stars";
 }
 
 function updateStars(){
+
  $("rating").innerHTML=[1,2,3,4,5].map(n=>
- `<span onclick="setRating(${n})">${n<=selectedRating?"★":"☆"}</span>`
+ `<span onclick="setRating(${n})">
+ ${n<=selectedRating?"★":"☆"}
+ </span>`
  ).join("");
 }
 
 // CREATE ORDER
 function createOrder(){
+
  let uid=$("gameUID").value.trim();
- if(!uid)return notice("Please enter your Game UID.");
- if(!selectedRating)return notice("Please give a star rating.");
- if(!$("acceptPolicy").checked)return notice("Please accept the refund policy.");
+
+ if(!uid)
+ return notice("Please enter your Game UID.");
+
+ if(!selectedRating)
+ return notice("Please give a star rating.");
+
+ if(!$("acceptPolicy").checked)
+ return notice("Please accept the refund policy.");
+
+ if(!settings.qr)
+ return notice("Payment QR Code is not configured. Contact admin.");
 
  let code="ZP"+Date.now().toString(36).toUpperCase();
 
@@ -497,56 +608,64 @@ function createOrder(){
  };
 
  orders.push(order);
+
  saveAll();
+
  activeOrder=code;
  cart=[];
 
  $("paymentCode").textContent=code;
  $("paymentAmount").textContent="PAY ₹"+order.amount;
- $("upiDisplay").textContent=settings.upi;
+
+ $("paymentQR").src=settings.qr;
 
  show("payment");
 }
 
-// PAYMENT
-function copyUPI(){
- if(!settings.upi||settings.upi==="YOUR-UPI-ID@BANK")
- return notice("Payment UPI is not configured.");
-
- navigator.clipboard.writeText(settings.upi)
- .then(()=>notice("UPI ID copied!"))
- .catch(()=>notice("UPI ID: "+settings.upi));
-}
-
+// PAYMENT SCREENSHOT
 $("screenshot").addEventListener("change",function(){
+
  let file=this.files[0];
  if(!file)return;
 
- if(!file.type.startsWith("image/"))return notice("Select an image.");
- if(file.size>1000000)return notice("Screenshot must be below 1 MB.");
+ if(!file.type.startsWith("image/"))
+ return notice("Select an image.");
+
+ if(file.size>1000000)
+ return notice("Screenshot must be below 1 MB.");
 
  let reader=new FileReader();
+
  reader.onload=e=>{
  $("preview").src=e.target.result;
  $("preview").classList.remove("hidden");
  };
+
  reader.readAsDataURL(file);
 });
 
+// SUBMIT PAYMENT
 function submitPayment(){
+
  let o=orders.find(x=>x.id===activeOrder);
- if(!o)return notice("Order not found.");
+
+ if(!o)
+ return notice("Order not found.");
 
  let utr=$("utr").value.trim();
  let file=$("screenshot").files[0];
 
- if(!utr||!file)return notice("Enter UTR and upload screenshot.");
+ if(!utr||!file)
+ return notice("Enter UTR and upload screenshot.");
 
  let reader=new FileReader();
+
  reader.onload=e=>{
+
  o.utr=utr;
  o.screenshot=e.target.result;
  o.status="Payment Verification Pending";
+
  saveAll();
 
  $("utr").value="";
@@ -554,13 +673,16 @@ function submitPayment(){
  $("preview").classList.add("hidden");
 
  notice("Payment submitted successfully!");
+
  show("history");
  };
+
  reader.readAsDataURL(file);
 }
 
 // CUSTOMER HISTORY
 function renderHistory(){
+
  if(!currentUser){
  $("myOrders").textContent="Please login first.";
  return;
@@ -576,52 +698,70 @@ function renderHistory(){
  <p>Rating: ${o.rating} ★</p>
  <p>Status: ${safe(o.status)}</p>
  <p>${safe(o.date)}</p>
- </div>`).join("")||"No orders yet.";
+ </div>
+ `).join("")||"No orders yet.";
 }
 
 // ADMIN ORDER MANAGEMENT
 function changeOrder(i,status){
+
  if(!isAdmin)return;
+
  orders[i].status=status;
+
  saveAll();
  renderAdmin();
 }
 
 function deleteOrder(i){
+
  if(!isAdmin)return;
- if(!confirm("Delete this order permanently?"))return;
+
+ if(!confirm("Delete this order permanently?"))
+ return;
+
  orders.splice(i,1);
+
  saveAll();
  renderAdmin();
 }
 
 // BAN AND UNBAN
 function toggleBan(i){
+
  if(!isAdmin)return;
+
  users[i].banned=!users[i].banned;
+
  saveAll();
  renderAdmin();
 }
 
 function deleteUser(i){
+
  if(!isAdmin)return;
+
  let name=users[i].username;
 
- if(!confirm("Delete "+name+" and their order history?"))return;
+ if(!confirm("Delete "+name+" and their order history?"))
+ return;
 
  orders=orders.filter(o=>o.user!==name);
+
  users.splice(i,1);
+
  saveAll();
  renderAdmin();
 }
 
 // ADMIN DASHBOARD
 function renderAdmin(){
+
  if(!isAdmin)return;
 
  $("siteName").value=settings.name;
  $("themeSelect").value=settings.theme;
- $("upiInput").value=settings.upi;
+ $("qrInput").value=settings.qr||"";
 
  $("orders").innerHTML=orders.map((o,i)=>`
  <div class="order">
@@ -634,31 +774,45 @@ function renderAdmin(){
  <p>Rating: ${o.rating} ★</p>
  <p>UTR: ${safe(o.utr||"Not submitted")}</p>
  <p>Status: ${safe(o.status)}</p>
- ${o.screenshot?`<img class="preview" src="${o.screenshot}" alt="Payment screenshot">`:""}
+
+ ${o.screenshot?
+ `<img class="preview" src="${o.screenshot}" alt="Payment screenshot">`
+ :""}
+
  <button onclick="changeOrder(${i},'Confirmed')">CONFIRM</button>
  <button onclick="changeOrder(${i},'Cancelled')">CANCEL</button>
  <button class="danger" onclick="deleteOrder(${i})">DELETE ORDER</button>
- </div>`).join("")||"No orders.";
+ </div>
+ `).join("")||"No orders.";
 
  $("users").innerHTML=users.map((u,i)=>`
  <div class="order">
  <h3>${safe(u.username)}</h3>
  <p>Status: ${u.banned?"🔴 BANNED":"🟢 ACTIVE"}</p>
- <button onclick="toggleBan(${i})">${u.banned?"UNBAN":"BAN USER"}</button>
+ <button onclick="toggleBan(${i})">
+ ${u.banned?"UNBAN":"BAN USER"}
+ </button>
  <button class="danger" onclick="deleteUser(${i})">DELETE ACCOUNT</button>
- </div>`).join("")||"No users.";
+ </div>
+ `).join("")||"No users.";
 
  $("adminProducts").innerHTML=products.map((p,i)=>`
  <div class="product">
  ${safe(p.name)} - ₹${p.price}
  <button class="danger" onclick="deleteProduct(${i})">DELETE</button>
- </div>`).join("");
+ </div>
+ `).join("");
 }
 
 function deleteProduct(i){
+
  if(!isAdmin)return;
- if(!confirm("Delete product?"))return;
+
+ if(!confirm("Delete product?"))
+ return;
+
  products.splice(i,1);
+
  saveAll();
  renderAdmin();
 }
@@ -674,34 +828,55 @@ const themes={
 };
 
 function changeTheme(name){
+
  if(!isAdmin||!themes[name])return;
+
  settings.theme=name;
  applyTheme();
 }
 
 function applyTheme(){
+
  let t=themes[settings.theme]||themes.rgb;
+
  document.documentElement.style.setProperty("--bg",t[0]);
  document.documentElement.style.setProperty("--main",t[1]);
+
  $("heading").textContent=settings.name;
 }
 
+// SAVE DESIGN
 function saveSettings(){
+
  if(!isAdmin)return;
+
  settings.name=$("siteName").value.trim()||"ZONEPUSHER";
  settings.theme=$("themeSelect").value;
+
  saveAll();
  applyTheme();
+
  notice("Website design saved.");
 }
 
-function saveUPI(){
+// SAVE QR CODE
+function saveQR(){
+
  if(!isAdmin)return;
- let v=$("upiInput").value.trim();
- if(!v)return notice("Enter UPI ID.");
- settings.upi=v;
+
+ let v=$("qrInput").value.trim();
+
+ if(!v)
+ return notice("Enter QR image link.");
+
+ if(!/^https?:\/\//i.test(v))
+ return notice("Please enter a valid image link.");
+
+ settings.qr=v;
+
  saveAll();
- notice("UPI saved.");
+
+ notice("Payment QR Code saved successfully!");
 }
 
 // INITIALIZE
